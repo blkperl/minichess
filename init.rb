@@ -1,5 +1,5 @@
-require 'state'
-require 'ruby-debug'
+#require 'debugger'
+require './state'
 
 s = State.new
 s.init_board

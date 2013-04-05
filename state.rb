@@ -1,7 +1,7 @@
-class State 
+class State
 
-@move_next
-@move_current
+#@move_next
+#@move_current
 @board
 
 
@@ -23,7 +23,7 @@ class State
     ]
   end
 
-debugger
 
 end
+
 
