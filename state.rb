@@ -1,8 +1,13 @@
 class State
 
-#@move_next
-#@move_current
-@board
+  attr_accessor :board
+
+  def initializer(mn, mc)
+    @maxTurns = 80
+    @move_next = mn
+    @move_current = mc
+    @board = []
+  end
 
   def print_board
     @board.each do |x|
@@ -36,14 +41,15 @@ class State
     while (not stop_short)
       x += dx
       y += dy
-      break if not xInBounds?(x) or not yInBounds?(y)
+      break if not inBounds?(x,y)
 
       if isOccupied(@board[x0][y0])
         break if @board[x0, y0].getColor == c
         break if not capture
         short_stop = true
-        # FIXME
-        # moves.insert(x0, y0, x, y)
+        validMove = Move.new(Square.new(x0,y0, Square.new(x,y))
+        moves << validMove
+        break if short_stop = true
       end
     end
 
@@ -61,12 +67,8 @@ class State
     value != '.'
   end
 
-  def xInBounds?(x)
-    x < 5 && x > 0
-  end
-
-  def yInBounds?(y)
-    x < 6 and x > 0
+  def inBounds?(x,y)
+    x < 5 && x > 0 or y < 6 and y > 0
   end
 
   def moveGen
@@ -76,6 +78,12 @@ class State
   end
 
   def moveList
+
+    moveList = self.moveScan(3,1,0,1,false,true)
+    moveList.each do |x|
+      puts x.to_s
+    end
+
 =begin
     # To list the moves of a piece at x, y: 
     p = @board[x][y]
