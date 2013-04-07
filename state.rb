@@ -47,11 +47,13 @@ class State
         break if @board[x0, y0].getColor == c
         break if not capture
         short_stop = true
-        validMove = Move.new(Square.new(x0,y0, Square.new(x,y))
+        validMove = Move.new(Square.new(x0,y0, Square.new(x,y)))
         moves << validMove
-        break if short_stop = true
+        break if short_stop == true
       end
     end
+
+    moves
 
   end
 
@@ -79,78 +81,73 @@ class State
 
   def moveList
 
-    moveList = self.moveScan(3,1,0,1,false,true)
-    moveList.each do |x|
-      puts x.to_s
-    end
-
-=begin
     # To list the moves of a piece at x, y: 
-    p = @board[x][y]
+    p = @board[x][y].upcase
     moves = nil
     case p
-      when queen:
-      when king:
+      when 'Q', 'K'
         (-1..1).each do |dx|
           (-1..1).each do |dy|
             if dx == 0 and dy == 0
                 next
             end
-            stop_short = (p == king)
-            moves = moves.insert(moveScan(x, y, dx, dy, stop_short))
+            stop_short = (p == 'K')
+            moves << moveScan(x, y, dx, dy, stop_short)
           end
         end
         return moves
-      when rook:
-      when bishop:
+      when 'R', 'B'
         dx = 1
         dy = 0
-        stop_short = p == bishop
-        capture = p == rook
+        stop_short = p == 'B'
+        capture = p == 'R'
         (1..4).each do |i|
-            moves = moves.insert(moveScan(x, y, dx, dy, stop_short, capture)
-            exchange dx with dy 
-            negate dy 
-        if p = bishop 
-            dx ← 1 
-            dy ← 1 
-            stop-short ← false 
-            capture ← true 
-            for i in 1 .. 4 
-                moves ← moves ∪ scan(x, y, dx, dy, stop-short, capture) 
-                exchange dx with dy 
-                negate dy 
-        return moves 
-    knight: 
-        dx ← 1 
-        dy ← 2 
-        stop-short ← true 
-        for i in 1 .. 4 
-            moves ← moves ∪ scan(x, y, dx, dy, stop-short) 
-            exchange dx with dy 
-            negate dy 
-        dx ← -1 
-        dy ← 2 
-        for i in 1 .. 4 
-            moves ← moves ∪ scan(x, y, dx, dy, stop-short) 
-            exchange dx with dy 
-            negate dy 
-        return moves 
-    pawn: 
-        dir ← 1 
-        if p is black 
-            dir ← -1 
-        stop-short ← true 
-        m ← scan(x, y, -1, dir, stop-short) 
-        if |m| = 1 and m[0] is a capture 
-            moves ← moves ∪ m 
-        m ← scan(x, y, 1, dir, stop-short) 
-        if |m| = 1 and m[0] is a capture 
-            moves ← moves ∪ m 
-        capture ← false 
-        moves ← moves ∪ scan(x, y, 0, dir, stop-short, capture) 
+            moves << moveScan(x, y, dx, dy, stop_short, capture)
+            dx,dy = -dy,dx
+        end
+        if p == 'B'
+            dx = 1
+            dy = 1
+            stop_short = false
+            capture = true 
+            (1..4).each do |i|
+                moves << moveScan(x, y, dx, dy, stop_short, capture) 
+                dx,dy = -dy,dx
+            end
+        end
         return moves
-=end
+      when 'K'
+        dx = 1
+        dy = 2
+        stop_short = true 
+        (1..4).each do |i|
+            moves << moveScan(x, y, dx, dy, stop_short, capture) 
+            dx,dy = -dy,dx
+        end
+        dx = -1 
+        dy = 2 
+        (1..4).each do |i|
+            moves << moveScan(x, y, dx, dy, stop_short, capture) 
+            dx,dy = -dy,dx
+        end
+        return moves
+    when 'P'
+        dir = 1
+        if p is black
+            dir = -1
+        end
+        stop_short = true 
+        m = moveScan(x, y, -1, dir, stop_short)
+        if m.size == 1 and m[0] == capture
+            moves << m
+        end
+        m << moveScan(x, y, dx, dy, stop_short) 
+        if m.size == 1 and m[0] == capture
+            moves << m
+        end
+        capture = false 
+        moves << moveScan(x, y, -1, dir, stop_short)
+        return moves
   end
 
 end
