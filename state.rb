@@ -30,6 +30,11 @@ class State
   end
 
   def move(m)
+    if m.nil? and m.side?
+      State.new
+    else
+      throw "move error"
+    end
   end
 
   def moveScan(x0, y0, c, capture=true, stop_short=false)
@@ -54,7 +59,6 @@ class State
     end
 
     moves
-
   end
 
   def getColor(x0, y0)
@@ -101,7 +105,7 @@ class State
         dy = 0
         stop_short = p == 'B'
         capture = p == 'R'
-        (1..4).each do |i|
+        for i in 1..4
             moves << moveScan(x, y, dx, dy, stop_short, capture)
             dx,dy = -dy,dx
         end
@@ -110,7 +114,7 @@ class State
             dy = 1
             stop_short = false
             capture = true 
-            (1..4).each do |i|
+            for i in 1..4
                 moves << moveScan(x, y, dx, dy, stop_short, capture) 
                 dx,dy = -dy,dx
             end
@@ -120,18 +124,18 @@ class State
         dx = 1
         dy = 2
         stop_short = true 
-        (1..4).each do |i|
+        for i in 1..4
             moves << moveScan(x, y, dx, dy, stop_short, capture) 
             dx,dy = -dy,dx
         end
         dx = -1 
         dy = 2 
-        (1..4).each do |i|
+        for i in 1..4
             moves << moveScan(x, y, dx, dy, stop_short, capture) 
             dx,dy = -dy,dx
         end
         return moves
-    when 'P'
+      when 'P'
         dir = 1
         if p is black
             dir = -1
@@ -148,7 +152,8 @@ class State
         capture = false 
         moves << moveScan(x, y, -1, dir, stop_short)
         return moves
-  end
+      end
+    end
 
 end
 
