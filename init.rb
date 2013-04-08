@@ -5,8 +5,8 @@ s = State.new
 s.init_board
 
 board2 = [
-  ['k','.','b','.','r'],
-  ['.','.','p','.','.'],
+  ['.','.','.','.','r'],
+  ['.','k','.','.','.'],
   ['.','.','.','.','.'],
   ['.','.','.','.','.'],
   ['P','P','P','P','P'],
@@ -15,5 +15,6 @@ board2 = [
 s.board=board2
 s.print_board
 
-puts s.board[0][0]
-puts s.moveList(0,0)
+puts s.board[1][1]
+#debugger
+puts s.moveList(1,1).flatten

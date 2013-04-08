@@ -50,9 +50,7 @@ class State
     c = getColor(x0,y0)
     moves = []
 
-
-    puts "moves #{x} #{y} #{dx} #{dy} #{stop_short}"
-    while (not stop_short)
+    loop do
       x += dx
       y += dy
       break if not inBounds?(x,y)
@@ -60,12 +58,12 @@ class State
       if isOccupied?(@board[y][x])
         break if getColor(x,y) == c
         break if not capture
-        short_stop = true
-        break if short_stop == true
+        stop_short = true
       end
 
       validMove = Move.new(Square.new(x0,y0), Square.new(x,y))
       moves << validMove
+      break if stop_short == true
     end
 
     return moves
@@ -84,7 +82,7 @@ class State
   end
 
   def inBounds?(x,y)
-    x < 5 && x > 0 or y < 6 and y > 0
+    x < 5 && x > 0 or y < 6 and y > -1
   end
 
   def moveGen
@@ -107,7 +105,7 @@ class State
                 next
             end
             stop_short = (p == 'K')
-            moves << moveScan(x, y, dx, dy, stop_short)
+            moves << moveScan(x, y, dx, dy, capture=true, stop_short)
           end
         end
         return moves
