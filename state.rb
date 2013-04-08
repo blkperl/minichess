@@ -1,3 +1,6 @@
+require './move.rb'
+require './square.rb'
+
 class State
 
   attr_accessor :board
@@ -30,7 +33,7 @@ class State
   end
 
   def humanMove(move)
-    
+
   end
 
   def move(m)
@@ -41,32 +44,35 @@ class State
     end
   end
 
-  def moveScan(x0, y0, c, capture=true, stop_short=false)
+  def moveScan(x0, y0, dx, dy, capture=true, stop_short=false)
     x = x0
     y = y0
     c = getColor(x0,y0)
-    moves = nil
+    moves = []
 
+
+    puts "moves #{x} #{y} #{dx} #{dy} #{stop_short}"
     while (not stop_short)
       x += dx
       y += dy
       break if not inBounds?(x,y)
 
-      if isOccupied(@board[x0][y0])
-        break if @board[x0, y0].getColor == c
+      if isOccupied?(@board[y][x])
+        break if getColor(x,y) == c
         break if not capture
         short_stop = true
-        validMove = Move.new(Square.new(x0,y0, Square.new(x,y)))
-        moves << validMove
         break if short_stop == true
       end
+
+      validMove = Move.new(Square.new(x0,y0), Square.new(x,y))
+      moves << validMove
     end
 
-    moves
+    return moves
   end
 
-  def getColor(x0, y0)
-    if @board[x0, y0].to_s.upcase == @board[x0, y0]
+  def getColor(x, y)
+    if @board[y, x].to_s.upcase == @board[y, x]
       "W"
     else
       "B"
@@ -87,11 +93,12 @@ class State
     # return list of possible moves
   end
 
-  def moveList(p,x,y)
+  def moveList(x,y)
 
     # To list the moves of a piece at x, y: 
-    p = @board[x][y].to_s.upcase
-    moves = nil
+    p = @board[y][x].to_s.upcase
+    moves = []
+
     case p
       when 'Q', 'K'
         (-1..1).each do |dx|
@@ -107,21 +114,21 @@ class State
       when 'R', 'B'
         dx = 1
         dy = 0
-        stop_short = p == 'B'
-        capture = p == 'R'
+        stop_short = (p == 'B')
+        capture = (p == 'R')
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, stop_short, capture)
-            dx,dy = -dy,dx
+          moves << moveScan(x, y, dx, dy, stop_short, capture)
+          dx,dy = -dy,dx
         end
         if p == 'B'
-            dx = 1
-            dy = 1
-            stop_short = false
-            capture = true 
-            for i in 1..4
-                moves << moveScan(x, y, dx, dy, stop_short, capture) 
-                dx,dy = -dy,dx
-            end
+          dx = 1
+          dy = 1
+          stop_short = false
+          capture = true
+          for i in 1..4
+              moves << moveScan(x, y, dx, dy, stop_short, capture)
+              dx,dy = -dy,dx
+          end
         end
         return moves
       when 'K'
@@ -140,21 +147,21 @@ class State
         end
         return moves
       when 'P'
-        dir = 1
-        if p.to_s.upcase != p # black?
-            dir = -1
-        end
+
+        # inverse the direction of black pawns
+        dir = getColor(x,y) == 'B' ? -1 : 1
+
         stop_short = true 
         m = moveScan(x, y, -1, dir, stop_short)
         if m.size == 1 and m[0] == capture
             moves << m
         end
-        m << moveScan(x, y, dx, dy, stop_short) 
+        m = moveScan(x, y, 1, dy, stop_short)
         if m.size == 1 and m[0] == capture
             moves << m
         end
         capture = false 
-        moves << moveScan(x, y, -1, dir, stop_short)
+        moves << moveScan(x, y, 0, dir, stop_short)
         return moves
       end
     end

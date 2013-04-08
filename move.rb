@@ -1,8 +1,8 @@
 class Move
 
   def initialize(fs, ts)
-    @fromSquare = fromSquare
-    @toSquare = toSquare
+    @fromSquare = fs
+    @toSquare = ts
   end
 
   # print moves
