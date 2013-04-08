@@ -7,4 +7,4 @@ s.print_board
 
 puts s.board[1][0]
 
-
+s.moveList('K',1,0)

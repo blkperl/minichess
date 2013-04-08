@@ -29,6 +29,10 @@ class State
     ]
   end
 
+  def humanMove(move)
+    
+  end
+
   def move(m)
     if m.nil? and m.side?
       State.new
@@ -62,7 +66,7 @@ class State
   end
 
   def getColor(x0, y0)
-    if @board[x0, y0].upcase == @board[x0, y0]
+    if @board[x0, y0].to_s.upcase == @board[x0, y0]
       "W"
     else
       "B"
@@ -83,10 +87,10 @@ class State
     # return list of possible moves
   end
 
-  def moveList
+  def moveList(p,x,y)
 
     # To list the moves of a piece at x, y: 
-    p = @board[x][y].upcase
+    p = @board[x][y].to_s.upcase
     moves = nil
     case p
       when 'Q', 'K'
@@ -128,8 +132,8 @@ class State
             moves << moveScan(x, y, dx, dy, stop_short, capture) 
             dx,dy = -dy,dx
         end
-        dx = -1 
-        dy = 2 
+        dx = -1
+        dy = 2
         for i in 1..4
             moves << moveScan(x, y, dx, dy, stop_short, capture) 
             dx,dy = -dy,dx
@@ -137,7 +141,7 @@ class State
         return moves
       when 'P'
         dir = 1
-        if p is black
+        if p.to_s.upcase != p # black?
             dir = -1
         end
         stop_short = true 
