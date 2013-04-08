@@ -1,3 +1,5 @@
+require './square.rb'
+
 class Move
 
   def initialize(fs, ts)
@@ -6,8 +8,8 @@ class Move
   end
 
   # print moves
-  def print()
-    from = toChessSquare(@fromSqaure.x,@fromSqaure.y)
+  def to_s
+    from = toChessSquare(@fromSquare.x,@fromSquare.y)
     to = toChessSquare(@toSquare.x, @toSquare.y)
     "#{from}-#{to}"
   end
