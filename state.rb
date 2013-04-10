@@ -44,7 +44,7 @@ class State
     end
   end
 
-  def moveScan(x0, y0, dx, dy, capture=true, stop_short=false)
+  def moveScan(x0, y0, dx, dy, capture, stop_short)
     x = x0
     y = y0
     c = getColor(x0,y0)
@@ -62,7 +62,6 @@ class State
       end
 
       validMove = Move.new(Square.new(x0,y0), Square.new(x,y))
-      @board[y][x] = '%'
       moves << validMove
       break if stop_short == true
     end
@@ -75,6 +74,14 @@ class State
       "W"
     else
       "B"
+    end
+  end
+
+  def isCapture?(fs, ts)
+    if @board[ts.y][ts.x] == '.'
+      return false
+    else
+      return @board[fs.y][fs.x].to_s != @board[ts.y][ts.x].to_s
     end
   end
 
@@ -110,57 +117,72 @@ class State
           end
         end
         return moves
-      when 'R', 'B'
+      when 'R'
         dx = 1
         dy = 0
-        stop_short = (p == 'B')
-        capture = (p == 'R')
+        stop_short = false
+        capture = true
         for i in 1..4
-          moves << moveScan(x, y, dx, dy, stop_short, capture)
+          moves << moveScan(x, y, dx, dy, capture, stop_short)
           dx,dy = -dy,dx
         end
-        if p == 'B'
+        return moves
+      when 'B'
+        dx = 1
+        dy = 0
+        stop_short = true
+        capture = false
+        for i in 1..4
+          moves << moveScan(x, y, dx, dy, capture, stop_short)
+          dx,dy = -dy,dx
+        end
+        #if p == 'B'
           dx = 1
           dy = 1
           stop_short = false
           capture = true
           for i in 1..4
-              moves << moveScan(x, y, dx, dy, stop_short, capture)
+              moves << moveScan(x, y, dx, dy, capture, stop_short)
               dx,dy = -dy,dx
           end
-        end
+        #end
         return moves
-      when 'K'
+      when 'N'
         dx = 1
         dy = 2
-        stop_short = true 
+        stop_short = true
+        capture = true
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, stop_short, capture) 
+            moves << moveScan(x, y, dx, dy, capture, stop_short)
             dx,dy = -dy,dx
         end
         dx = -1
         dy = 2
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, stop_short, capture) 
+            moves << moveScan(x, y, dx, dy, capture, stop_short)
             dx,dy = -dy,dx
         end
         return moves
       when 'P'
 
         # inverse the direction of black pawns
-        dir = getColor(x,y) == 'B' ? -1 : 1
+        dir = (getColor(x,y) == 'B') ? 1 : -1
 
-        stop_short = true 
-        m = moveScan(x, y, -1, dir, stop_short)
-        if m.size == 1 and m[0] == capture
+        stop_short = true
+
+        # West
+        m = moveScan(x, y, -1, dir, true, stop_short)
+        # check if I can capture diag (NW or SW)
+        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare)
             moves << m
         end
-        m = moveScan(x, y, 1, dy, stop_short)
-        if m.size == 1 and m[0] == capture
+        # East
+        m = moveScan(x, y, 1, dir, true, stop_short)
+        # check if I can capture diag ( NE or SE)
+        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare)
             moves << m
         end
-        capture = false 
-        moves << moveScan(x, y, 0, dir, stop_short)
+        moves << moveScan(x, y, 0, dir, false, stop_short)
         return moves
       end
     end

@@ -2,6 +2,8 @@ require './square.rb'
 
 class Move
 
+  attr_reader :fromSquare, :toSquare
+
   def initialize(fs, ts)
     @fromSquare = fs
     @toSquare = ts
