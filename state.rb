@@ -71,7 +71,7 @@ class State
   end
 
   def getColor(x, y)
-    if @board[y, x].to_s.upcase == @board[y, x]
+    if @board[y][x].to_s.upcase == @board[y][x]
       "W"
     else
       "B"
