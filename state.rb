@@ -62,6 +62,7 @@ class State
       end
 
       validMove = Move.new(Square.new(x0,y0), Square.new(x,y))
+      @board[y][x] = '%'
       moves << validMove
       break if stop_short == true
     end
@@ -82,7 +83,7 @@ class State
   end
 
   def inBounds?(x,y)
-    x < 5 && x > 0 or y < 6 and y > -1
+    x < 5 and x > -1 and y < 6 and y > -1
   end
 
   def moveGen
