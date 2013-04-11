@@ -5,10 +5,10 @@ class State
 
   attr_accessor :board
 
-  def initializer(mn, mc)
+  def initializer()
     @maxTurns = 80
-    @move_next = mn
-    @move_current = mc
+    @move_next
+    @move_current
     @board = []
   end
 
@@ -37,7 +37,8 @@ class State
   end
 
   def move(m)
-    if m.nil? and m.side?
+    sideOnMove = 'B'
+    if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == sideOnMove)
       State.new
     else
       throw "move error"
@@ -75,6 +76,10 @@ class State
     else
       "B"
     end
+  end
+
+  def isPiece?(square)
+    return ['Q','K','R','N','B','P'].include?(@board[square.y][square.x].upcase)
   end
 
   def isCapture?(fs, ts)
