@@ -5,8 +5,10 @@ class State
 
   attr_accessor :board
 
+  MAXTURNS = 80
+  $moveCounter = 0
+
   def initializer()
-    @maxTurns = 80
     @move_next
     @move_current
     @board = []
@@ -14,7 +16,7 @@ class State
 
   def print_board
     @board.each do |x|
-      puts x.join("")
+      puts x.join(" ")
     end
   end
 
@@ -32,17 +34,76 @@ class State
     ]
   end
 
+  def gameOver?
+    if not @board.flatten.include?('k')
+      puts "black wins"
+      return true
+    elsif not @board.flatten.include?('K')
+      puts "white wins"
+      return true
+    elsif @movesCounter == MAXTURNS
+      puts "draw"
+      return true
+    else
+      return false
+    end
+  end
+
+
+  def randomMove
+    # ask each piece for valid moves
+    # call movelist
+    # randomly choose a move
+    # call move method
+  end
+
+#Add another method "humanMove" that takes an argument of the form "a1-b2"; that is, a pair of board coordinates with a dash between them. (Use lowercase only.) The method decodes the coordinates, checks to see if the move is fully legal, and then invokes "move" to move the piece. Otherwise, it should throw an exception. The easy way to check for a legal move is to use "move" to generate all legal moves and then walk them all.
+
   def humanMove(move)
+    throw "nil human move error" if move.nil?
 
   end
 
   def move(m)
+
     sideOnMove = 'B'
     if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == sideOnMove)
-      State.new
+
+      puts "Move is #{m.to_s}"
+
+      moves = []
+      moveList(m.fromSquare.x, m.fromSquare.y).flatten.each do |m| 
+        moves << m.to_s 
+      end
+
+      if not moves.include?(m.to_s)
+        throw "Error: Not a valid move x, y is fromSquare: #{m.fromSquare.x} #{m.fromSquare.y}, toSquare is #{m.toSquare.x} #{m.toSquare.y}"
+      else
+        updateBoard(m)
+      end
+
+      $moveCounter += 1
     else
       throw "move error"
     end
+  end
+
+  def updateBoard(m)
+    # move piece to toSquare
+    @board[m.toSquare.y][m.toSquare.x] = @board[m.fromSquare.y][m.fromSquare.x]
+    # set from square to empty
+    @board[m.fromSquare.y][m.fromSquare.x] = '.'
+
+    # if piece is pawn and reaches the end of the board, then its becomes a queen
+    if @board[m.toSquare.y][m.toSquare.x].upcase == 'P'
+      if m.toSquare.y == 5 and getColor(m.toSquare.x, m.toSquare.y) == 'B'
+        @board[m.toSquare.y][m.toSquare.x] = 'q'
+      end
+      if m.toSquare.y == 0 and getColor(m.toSquare.x, m.toSquare.y) == 'W'
+        @board[m.toSquare.y][m.toSquare.x] = 'Q'
+      end
+    end
+
   end
 
   def moveScan(x0, y0, dx, dy, capture, stop_short)
@@ -107,10 +168,10 @@ class State
   def moveList(x,y)
 
     # To list the moves of a piece at x, y: 
-    p = @board[y][x].to_s.upcase
+    p = @board[y][x]
     moves = []
 
-    case p
+    case p.to_s.upcase
       when 'Q', 'K'
         (-1..1).each do |dx|
           (-1..1).each do |dy|
@@ -189,6 +250,9 @@ class State
         end
         moves << moveScan(x, y, 0, dir, false, stop_short)
         return moves
+
+      else
+        throw "Error: moveList called on invalid piece '#{p}' with coordinates x: #{x} y: #{y}"
       end
     end
 
