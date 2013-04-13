@@ -133,9 +133,9 @@ class State
 
   def getColor(x, y)
     if @board[y][x].to_s.upcase == @board[y][x]
-      "W"
+      return "W"
     else
-      "B"
+      return "B"
     end
   end
 
@@ -152,11 +152,11 @@ class State
   end
 
   def isOccupied?(value)
-    value != '.'
+    return value != '.'
   end
 
   def inBounds?(x,y)
-    x < 5 and x > -1 and y < 6 and y > -1
+    return x < 5 and x > -1 and y < 6 and y > -1
   end
 
   def moveGen

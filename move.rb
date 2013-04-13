@@ -13,14 +13,14 @@ class Move
   def to_s
     from = toChessSquare(@fromSquare.x,@fromSquare.y)
     to = toChessSquare(@toSquare.x, @toSquare.y)
-    "#{from}-#{to}"
+    return "#{from}-#{to}"
   end
 
   # convert from xy coordinates to chessboard coordinates
   def toChessSquare(x,y)
    col = ['a','b','c','d','e'][x]
    row = y+1
-   col + row.to_s
+   return col + row.to_s
   end
 
 end
