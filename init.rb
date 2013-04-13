@@ -4,7 +4,7 @@ require './square'
 require './move'
 
 s = State.new
-s.init_board
+s.initBoard
 
 s.printBoard
 

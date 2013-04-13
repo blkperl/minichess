@@ -20,10 +20,7 @@ class State
     end
   end
 
-  def read_board
-  end
-
-  def init_board
+  def initBoard
     @board = [
       ['k','q','b','n','r'],
       ['p','p','p','p','p'],
