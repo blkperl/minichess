@@ -49,9 +49,23 @@ class State
 
   def randomMove
     # ask each piece for valid moves
+        # gather all pieces
     # call movelist
     # randomly choose a move
     # call move method
+  end
+
+  def getPiecesForSide(color)
+    pieces = []
+    for y in 0..5 do
+      for x in 0..4 do
+        piece = Square.new(x,y)
+        if isPiece?(piece) and color == getColor(x,y)
+           pieces << pieces
+        end
+      end
+    end
+    return pieces
   end
 
 #Add another method "humanMove" that takes an argument of the form "a1-b2"; that is, a pair of board coordinates with a dash between them. (Use lowercase only.) The method decodes the coordinates, checks to see if the move is fully legal, and then invokes "move" to move the piece. Otherwise, it should throw an exception. The easy way to check for a legal move is to use "move" to generate all legal moves and then walk them all.
@@ -153,7 +167,7 @@ class State
   end
 
   def inBounds?(x,y)
-    return x < 5 and x > -1 and y < 6 and y > -1
+    return (x < 5 and x > -1 and y < 6 and y > -1)
   end
 
   def moveGen
