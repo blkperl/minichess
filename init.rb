@@ -6,7 +6,7 @@ require './move'
 s = State.new
 s.init_board
 
-s.print_board
+s.printBoard
 
 puts "
 a1 b1 c1 d1 e1
@@ -25,7 +25,7 @@ puts " \nNext turn\n "
 #puts s.isPiece?(Square.new(1,2))
 #debugger
 s.move(Move.new(Square.new(1,1), Square.new(1,2)))
-s.print_board
+s.printBoard
 
 s.move(Move.new(Square.new(1,2), Square.new(1,3)))
-s.print_board
+s.printBoard

@@ -14,7 +14,7 @@ class State
     @board = []
   end
 
-  def print_board
+  def printBoard
     @board.each do |x|
       puts x.join(" ")
     end
