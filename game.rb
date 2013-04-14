@@ -9,6 +9,7 @@ while not game.gameOver? do
   game.randomMove
   game.nextTurn
   game.printBoard
+  break if game.gameOver?
   game.randomMove
   game.nextTurn
   game.printBoard

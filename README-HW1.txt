@@ -7,6 +7,8 @@ I have finished randomMove and my bot can play against itself. However, there se
 
 for i in `seq 10000` ; do echo game $i; ruby game.rb >> /tmp/minichess.log;  done
 
+Update: Found bug, game file didn't check to see if the game was over after the first random move is made.
+
 I still need to implement humanMove and reading in a board before moving on to Homework 2.
 
 See README.md for instructions on how to run it.

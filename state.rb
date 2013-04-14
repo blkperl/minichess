@@ -42,10 +42,10 @@ class State
 
   def gameOver?
     if not @board.flatten.include?('k')
-      puts "black wins"
+      puts "white wins"
       return true
     elsif not @board.flatten.include?('K')
-      puts "white wins"
+      puts "black wins"
       return true
     elsif @movesCounter == MAXTURNS
       puts "draw"
