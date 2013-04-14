@@ -22,8 +22,9 @@ class State
   end
 
   def printBoard
+    puts "#{$moveCounter} #{$sideOnMove}"
     @board.each do |x|
-      puts x.join(" ")
+      puts x.join("")
     end
   end
 
