@@ -18,9 +18,8 @@ class Move
 
   # convert from xy coordinates to chessboard coordinates
   def toChessSquare(x,y)
-   col = ['a','b','c','d','e'][x]
-   row = y+1
-   return col + row.to_s
+   row = ['a','b','c','d','e'][x]
+   col = y+1
+   return row + col.to_s
   end
-
 end

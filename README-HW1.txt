@@ -9,8 +9,9 @@ for i in `seq 10000` ; do echo game $i; ruby game.rb >> /tmp/minichess.log;  don
 
 Update: Found bug, game file didn't check to see if the game was over after the first random move is made.
 
-I still need to implement humanMove and reading in a board before moving on to Homework 2.
+humanMove is also implemented and I can play games against the random bot
 
 See README.md for instructions on how to run it.
+
 
 

@@ -10,8 +10,6 @@ class State
   $sideOnMove = 'W'
 
   def initializer()
-    @move_next
-    @move_current
     @board = []
   end
 
@@ -55,7 +53,6 @@ class State
     end
   end
 
-
   def randomMove
     color = $sideOnMove
     # ask each piece for valid moves
@@ -83,11 +80,34 @@ class State
     return pieces
   end
 
-#Add another method "humanMove" that takes an argument of the form "a1-b2"; that is, a pair of board coordinates with a dash between them. (Use lowercase only.) The method decodes the coordinates, checks to see if the move is fully legal, and then invokes "move" to move the piece. Otherwise, it should throw an exception. The easy way to check for a legal move is to use "move" to generate all legal moves and then walk them all.
+  def humanTurn
+    puts "Enter Move:"
+    input = gets.chomp
+    #begin
+      humanMove(input)
+    #rescue
+      #puts "Try entering a valid move"
+      #humanTurn
+    #end
+  end
 
-  def humanMove(move)
-    throw "nil human move error" if move.nil?
+  def humanMove(hmove)
 
+    m = hmove.split("-")
+    fs = getChessSquare(m.first)
+    ts = getChessSquare(m.last)
+    hmove = Move.new(Square.new(fs.x,fs.y), Square.new(ts.x,ts.y))
+
+    moves = []
+    moveList(fs.x, fs.y).flatten.each do |m|
+      moves << m.to_s
+    end
+
+    if moves.include?(hmove.to_s)
+      move(hmove)
+    else
+      throw "Invalid Human move"
+    end
   end
 
   def move(m)
@@ -184,12 +204,6 @@ class State
     return (x < 5 and x > -1 and y < 6 and y > -1)
   end
 
-  def moveGen
-    # scan board
-    # generate moves for each piece
-    # return list of possible moves
-  end
-
   def moveList(x,y)
 
     # To list the moves of a piece at x, y: 
@@ -227,16 +241,14 @@ class State
           moves << moveScan(x, y, dx, dy, capture, stop_short)
           dx,dy = -dy,dx
         end
-        #if p == 'B'
-          dx = 1
-          dy = 1
-          stop_short = false
-          capture = true
-          for i in 1..4
-              moves << moveScan(x, y, dx, dy, capture, stop_short)
-              dx,dy = -dy,dx
-          end
-        #end
+        dx = 1
+        dy = 1
+        stop_short = false
+        capture = true
+        for i in 1..4
+            moves << moveScan(x, y, dx, dy, capture, stop_short)
+            dx,dy = -dy,dx
+        end
         return moves
       when 'N'
         dx = 1
@@ -281,6 +293,12 @@ class State
       end
     end
 
+  def getChessSquare(square)
+    row = ['a','b','c','d','e']
+    x = row.index(square[0])
+    y = square[1].to_i - 1
+    return Square.new(x,y)
+  end
 end
 
 
