@@ -7,11 +7,20 @@ class State
 
   MAXTURNS = 80
   $moveCounter = 0
+  $sideOnMove = 'W'
 
   def initializer()
     @move_next
     @move_current
     @board = []
+  end
+
+  def nextTurn
+    if $sideOnMove == 'W'
+        $sideOnMove = 'B'
+    elsif $sideOnMove == 'B'
+        $sideOnMove = 'W'
+    end
   end
 
   def printBoard
@@ -48,7 +57,7 @@ class State
 
 
   def randomMove
-    color = 'B'
+    color = $sideOnMove
     # ask each piece for valid moves
     allValidMoves = []
     getPiecesForSide(color).each do |piece|
@@ -83,9 +92,7 @@ class State
 
   def move(m)
 
-    sideOnMove = 'B'
-
-    if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == sideOnMove)
+    if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
 
       puts "Move is #{m.to_s}"
 
