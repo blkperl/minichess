@@ -48,11 +48,17 @@ class State
 
 
   def randomMove
+    color = 'B'
     # ask each piece for valid moves
-        # gather all pieces
-    # call movelist
-    # randomly choose a move
-    # call move method
+    allValidMoves = []
+    getPiecesForSide(color).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y)
+    end
+    allValidMoves.flatten!
+    random = rand(allValidMoves.size)
+    randomMove = allValidMoves[random]
+    move(randomMove)
+    return randomMove
   end
 
   def getPiecesForSide(color)
@@ -61,7 +67,7 @@ class State
       for x in 0..4 do
         piece = Square.new(x,y)
         if isPiece?(piece) and color == getColor(x,y)
-           pieces << pieces
+           pieces << piece
         end
       end
     end
@@ -78,6 +84,7 @@ class State
   def move(m)
 
     sideOnMove = 'B'
+
     if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == sideOnMove)
 
       puts "Move is #{m.to_s}"
