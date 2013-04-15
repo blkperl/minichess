@@ -68,6 +68,44 @@ class State
     return randomMove
   end
 
+  def chooseBestKill
+    allValidMoves = []
+    getPiecesForSide($sideOnMove).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y).flatten
+    end
+
+    m = {}
+    allValidMoves.flatten.each do |move|
+      piece = @board[move.toSquare.y][move.toSquare.x]
+      if piece.upcase == 'K'
+        self.move(move)
+        return move
+      end
+      m[move] = getPieceValue(piece)
+    end
+
+     bestMove = m.max_by { |move,val| val }.first
+     move(bestMove)
+     return bestMove
+  end
+
+  def getPieceValue(p)
+    case p.upcase
+      when 'P'
+        return 100
+      when 'B', 'N'
+        return 300
+      when 'R'
+        return 500
+      when 'Q'
+        return 900
+      when 'K'
+        return 0
+      when '.'
+        return 0
+    end
+  end
+
   def getPiecesForSide(color)
     pieces = []
     for y in 0..5 do
@@ -84,16 +122,10 @@ class State
   def humanTurn
     puts "Enter Move:"
     input = gets.chomp
-    #begin
-      humanMove(input)
-    #rescue
-      #puts "Try entering a valid move"
-      #humanTurn
-    #end
+    humanMove(input)
   end
 
   def humanMove(hmove)
-
     m = hmove.split("-")
     fs = getChessSquare(m.first)
     ts = getChessSquare(m.last)
