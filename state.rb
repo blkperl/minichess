@@ -68,6 +68,49 @@ class State
     return randomMove
   end
 
+  def evalMove
+    allValidMoves = []
+    getPiecesForSide($sideOnMove).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y).flatten
+    end
+
+    m = {}
+    allValidMoves.flatten.each do |move|
+      piece = @board[move.toSquare.y][move.toSquare.x]
+      if piece.upcase == 'K'
+        self.move(move)
+        return move
+      end
+      copyOfBoard = Marshal.load( Marshal.dump(@board) )
+      score = scoreGen(move, copyOfBoard)
+      m[move] = score
+    end
+
+     if $sideOMove == 'W'
+      bestMove = m.max_by { |move,val| val }.first
+     else
+      bestMove = m.min_by { |move,val| val }.first
+     end
+
+     puts bestMove.to_s
+     move(bestMove)
+  end
+
+  def scoreGen(move, copyOfBoard)
+    score = 0
+    updateBoard(move, copyOfBoard)
+    getPiecesForSide('W').each do |piece|
+      piece = copyOfBoard[piece.y][piece.x]
+      score += getPieceValue(piece)
+    end
+    getPiecesForSide('B').each do |piece|
+      piece = copyOfBoard[piece.y][piece.x]
+      score += getPieceValue(piece)
+    end
+    return score
+  end
+
+  # Not part of homework just strategy for comparision
   def chooseBestKill
     allValidMoves = []
     getPiecesForSide($sideOnMove).each do |piece|
@@ -81,7 +124,7 @@ class State
         self.move(move)
         return move
       end
-      m[move] = getPieceValue(piece)
+      m[move] = getPieceValue(piece.upcase)
     end
 
      bestMove = m.max_by { |move,val| val }.first
@@ -92,18 +135,18 @@ class State
   def getPieceValue(p)
     case p.upcase
       when 'P'
-        return 100
+        score = 100
       when 'B', 'N'
-        return 300
+        score = 300
       when 'R'
-        return 500
+        score = 500
       when 'Q'
-        return 900
-      when 'K'
-        return 0
-      when '.'
-        return 0
+        score = 900
+      when 'K', '.'
+        score = 0
     end
+
+    return p.upcase == p ? score : - score
   end
 
   def getPiecesForSide(color)
@@ -157,7 +200,7 @@ class State
       if not moves.include?(m.to_s)
         throw "Error: Not a valid move x, y is fromSquare: #{m.fromSquare.x} #{m.fromSquare.y}, toSquare is #{m.toSquare.x} #{m.toSquare.y}"
       else
-        updateBoard(m)
+        updateBoard(m, @board)
       end
 
       $moveCounter += 1
@@ -166,19 +209,19 @@ class State
     end
   end
 
-  def updateBoard(m)
+  def updateBoard(m, board)
     # move piece to toSquare
-    @board[m.toSquare.y][m.toSquare.x] = @board[m.fromSquare.y][m.fromSquare.x]
+    board[m.toSquare.y][m.toSquare.x] = board[m.fromSquare.y][m.fromSquare.x]
     # set from square to empty
-    @board[m.fromSquare.y][m.fromSquare.x] = '.'
+    board[m.fromSquare.y][m.fromSquare.x] = '.'
 
     # if piece is pawn and reaches the end of the board, then its becomes a queen
-    if @board[m.toSquare.y][m.toSquare.x].upcase == 'P'
+    if board[m.toSquare.y][m.toSquare.x].upcase == 'P'
       if m.toSquare.y == 5 and getColor(m.toSquare.x, m.toSquare.y) == 'B'
-        @board[m.toSquare.y][m.toSquare.x] = 'q'
+        board[m.toSquare.y][m.toSquare.x] = 'q'
       end
       if m.toSquare.y == 0 and getColor(m.toSquare.x, m.toSquare.y) == 'W'
-        @board[m.toSquare.y][m.toSquare.x] = 'Q'
+        board[m.toSquare.y][m.toSquare.x] = 'Q'
       end
     end
 

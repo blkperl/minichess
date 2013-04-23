@@ -8,9 +8,11 @@ GEM
       debugger-ruby_core_source (~> 1.2.0)
     debugger-linecache (1.2.0)
     debugger-ruby_core_source (1.2.0)
+    ruby-prof (0.13.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   debugger
+  ruby-prof
