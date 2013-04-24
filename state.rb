@@ -92,7 +92,6 @@ class State
       bestMove = m.min_by { |move,val| val }.first
      end
 
-     puts bestMove.to_s
      move(bestMove)
   end
 
@@ -286,19 +285,19 @@ class State
     p = @board[y][x]
     moves = []
 
-    case p.to_s.upcase
-      when 'Q', 'K'
+    case p
+      when 'Q', 'K', 'q', 'k'
         (-1..1).each do |dx|
           (-1..1).each do |dy|
             if dx == 0 and dy == 0
                 next
             end
-            stop_short = (p == 'K')
+            stop_short = (p == 'K' or p == 'k')
             moves << moveScan(x, y, dx, dy, capture=true, stop_short)
           end
         end
         return moves
-      when 'R'
+      when 'R', 'r'
         dx = 1
         dy = 0
         stop_short = false
@@ -308,7 +307,7 @@ class State
           dx,dy = -dy,dx
         end
         return moves
-      when 'B'
+      when 'B', 'b'
         dx = 1
         dy = 0
         stop_short = true
@@ -326,7 +325,7 @@ class State
             dx,dy = -dy,dx
         end
         return moves
-      when 'N'
+      when 'N', 'n'
         dx = 1
         dy = 2
         stop_short = true
@@ -342,7 +341,7 @@ class State
             dx,dy = -dy,dx
         end
         return moves
-      when 'P'
+      when 'P', 'p'
 
         # inverse the direction of black pawns
         dir = (getColor(x,y) == 'B') ? 1 : -1
