@@ -164,7 +164,11 @@ class State
   def humanTurn
     puts "Enter Move:"
     input = gets.chomp
-    humanMove(input)
+    begin
+      humanMove(input)
+    rescue
+      humanTurn
+    end
   end
 
   def humanMove(hmove)
@@ -181,6 +185,7 @@ class State
     if moves.include?(hmove.to_s)
       move(hmove)
     else
+      puts "Invalid chess move #{hmove.to_s} please try again"
       throw "Invalid Human move"
     end
   end
