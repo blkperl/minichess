@@ -93,6 +93,7 @@ class State
      end
 
      move(bestMove)
+     return bestMove.to_s
   end
 
   def scoreGen(move, copyOfBoard)
