@@ -2,19 +2,22 @@
 require './state'
 require 'debugger'
 
-game = State.new
+class Game
 
-game.initBoard
+  game = State.new
 
-game.printBoard
+  game.initBoard
 
-while not game.gameOver? do
-  game.humanTurn
-  game.nextTurn
   game.printBoard
-  break if game.gameOver?
-  game.evalMove
-  game.nextTurn
-  game.printBoard
+
+  while not game.gameOver? do
+    game.humanTurn
+    game.nextTurn
+    game.printBoard
+    break if game.gameOver?
+    game.evalMove
+    game.nextTurn
+    game.printBoard
+  end
+
 end
-
