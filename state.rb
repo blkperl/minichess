@@ -179,7 +179,7 @@ class State
     m = hmove.split("-")
     fs = getChessSquare(m.first)
     ts = getChessSquare(m.last)
-    hmove = Move.new(Square.new(fs.x,fs.y), Square.new(ts.x,ts.y))
+    hmove = Move.new(fs, ts)
 
     moves = []
     moveList(fs.x, fs.y).flatten.each do |m|
