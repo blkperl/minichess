@@ -6,7 +6,7 @@ class State
   attr_accessor :board
 
   MAXTURNS = 80
-  $moveCounter = 0
+  $moveCounter = 1
   $sideOnMove = 'W'
 
   def initializer()
@@ -192,7 +192,6 @@ class State
   end
 
   def move(m)
-
     if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
 
       puts "Move is #{m.to_s}"
@@ -377,7 +376,7 @@ class State
   def getChessSquare(square)
     row = ['a','b','c','d','e']
     x = row.index(square[0])
-    y = square[1].to_i - 1
+    y = [ 6, 5, 4, 3, 2, 1][square[1].to_i]
     return Square.new(x,y)
   end
 end

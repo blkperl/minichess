@@ -17,6 +17,7 @@ class Game
   if nc.acceptGame(gameId)
     puts "First Move is mine"
     nc.move(game.evalMove)
+    game.nextTurn
   end
 
 

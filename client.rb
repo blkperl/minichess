@@ -8,7 +8,7 @@ class Client
     @server = Net::Telnet::new(
       "Host" => "imcs.svcs.cs.pdx.edu",
       "Port" => "3589",
-      "Timeout" => 20,
+      "Timeout" => 60,
       "Prompt" => //)
   end
 
@@ -57,8 +57,8 @@ class Client
   end
 
   def waitForMove()
-    move = match(/.*/)
-    $move = move.match(/[a-f]\d-[a-f]/).to_s
+    move = match(/.*[a-f]\d-[a-f]\d.*/)
+    $move = move.match(/[a-f]\d-[a-f]\d/).to_s
   end
 
   def move(movestring)
