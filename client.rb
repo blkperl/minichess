@@ -79,7 +79,7 @@ class Client
     @server.waitfor(regex)
   end
 
-  def disconnect
+  def exit
     @server.close
   end
 

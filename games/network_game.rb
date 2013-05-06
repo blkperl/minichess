@@ -26,6 +26,6 @@ class Game
     nc.move(game.evalMove)
   end
 
-  nc.discconect
+  nc.exit
 
 end
