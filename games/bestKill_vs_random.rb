@@ -12,11 +12,9 @@ puts "bestKillbot vs randomBot"
 
 while not game.gameOver? do
   game.chooseBestKill
-  game.nextTurn
   game.printBoard
   break if game.gameOver?
   game.randomMove
-  game.nextTurn
   game.printBoard
 end
 

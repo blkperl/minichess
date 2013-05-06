@@ -12,11 +12,9 @@ puts "bestKillbot (W) vs evalBot(B)"
 
 while not game.gameOver? do
   game.chooseBestKill
-  game.nextTurn
   game.printBoard
   break if game.gameOver?
   game.evalMove
-  game.nextTurn
   game.printBoard
 end
 

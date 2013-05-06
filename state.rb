@@ -65,6 +65,7 @@ class State
     random = rand(allValidMoves.size)
     randomMove = allValidMoves[random]
     move(randomMove)
+    self.nextTurn
     return randomMove
   end
 
@@ -93,6 +94,7 @@ class State
      end
 
      move(bestMove)
+     self.nextTurn
      return bestMove.to_s
   end
 
@@ -129,6 +131,7 @@ class State
 
      bestMove = m.max_by { |move,val| val }.first
      move(bestMove)
+     self.nextTurn
      return bestMove
   end
 
@@ -189,6 +192,7 @@ class State
       puts "Invalid chess move #{hmove.to_s} please try again"
       throw "Invalid Human move"
     end
+    self.nextTurn
   end
 
   def move(m)

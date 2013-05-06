@@ -17,17 +17,13 @@ class Game
   if nc.acceptGame(gameId)
     puts "First Move is mine"
     nc.move(game.evalMove)
-    game.nextTurn
   end
-
 
   while not game.gameOver? do
     nc.waitForMove
     game.humanMove(nc.getOpponentMove)
-    game.nextTurn
     break if game.gameOver?
     nc.move(game.evalMove)
-    game.nextTurn
   end
 
   nc.discconect

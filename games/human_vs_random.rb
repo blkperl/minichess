@@ -10,11 +10,9 @@ game.printBoard
 
 while not game.gameOver? do
   game.humanTurn
-  game.nextTurn
   game.printBoard
   break if game.gameOver?
   game.randomMove
-  game.nextTurn
   game.printBoard
 end
 
