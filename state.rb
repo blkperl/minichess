@@ -198,7 +198,6 @@ class State
   def move(m)
     if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
 
-      puts "Move is #{m.to_s}"
 
       moves = []
       moveList(m.fromSquare.x, m.fromSquare.y).flatten.each do |m| 
@@ -380,7 +379,10 @@ class State
   def getChessSquare(square)
     row = ['a','b','c','d','e']
     x = row.index(square[0])
-    y = [ 6, 5, 4, 3, 2, 1][square[1].to_i]
+    y = [6, 5, 4, 3, 2, 1, 0][square[1].to_i]
+    if x.nil? or y.nil?
+      throw "Invalid chess square"
+    end
     return Square.new(x,y)
   end
 end

@@ -62,12 +62,14 @@ class Client
   end
 
   def move(movestring)
-    $move = write(movestring)
-    puts "Other players move is #{$move}"
+    if not movestring.nil?
+      $move = write(movestring)
+    else
+      throw "Error: nil movestring"
+    end
   end
 
   def getOpponentMove
-    puts "Opponent move was #{$move}"
     return $move
   end
 
