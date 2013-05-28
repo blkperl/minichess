@@ -6,6 +6,7 @@ class State
   attr_accessor :board
 
   MAXTURNS = 80
+  MAXDEPTH = 2
   $moveCounter = 1
   $sideOnMove = 'W'
 
@@ -26,6 +27,7 @@ class State
     @board.each do |x|
       puts x.join("")
     end
+    puts "\n"
   end
 
   def initBoard
@@ -58,32 +60,90 @@ class State
     color = $sideOnMove
     # ask each piece for valid moves
     allValidMoves = []
-    getPiecesForSide(color).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y)
+    getPiecesForSide(board, color).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y, @board)
     end
     allValidMoves.flatten!
     random = rand(allValidMoves.size)
     randomMove = allValidMoves[random]
-    move(randomMove)
+    move(randomMove, @board)
     self.nextTurn
     return randomMove
   end
 
+  def negamaxMove()
+
+    @nodes = 0
+    allValidMoves = []
+    getPiecesForSide(board, $sideOnMove).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y, @board).flatten
+    end
+
+    m = {}
+    allValidMoves.flatten.each do |move|
+      $sideOnMove == 'W' ? color = 1 : color = -1
+      # FIXME might need to negative
+      m[move] = negamax(@board, 0, color)
+    end
+
+     bestMove = m.max_by { |move,val| val }.first
+
+     turnMove(bestMove)
+     puts "Negamax Move is #{bestMove}"
+     puts "Total number of nodes: #{@nodes}"
+     self.nextTurn
+     return bestMove.to_s
+
+  end
+
+  def negamax(board, depth, color)
+    if gameOver? or depth > MAXDEPTH
+      @nodes = @nodes + 1
+      return  color * scoreGen(board)
+    end
+
+    max = -20000
+
+    color == 1 ? colorSide = 'W' : colorSide = 'B'
+
+    # Encapsulate this into a method
+    # Fix method to accept a board
+    allValidMoves = []
+    getPiecesForSide(board, colorSide).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y, board).flatten
+    end
+
+    allValidMoves.flatten.each do | move |
+      # FIXME make copy of board
+      copyOfBoard = Marshal.load( Marshal.dump(board) )
+      # make move on copyOfBoard
+      #puts "Move is #{move}"
+      updateBoard(move, copyOfBoard)
+      # traverse down the tree
+      score = -negamax(copyOfBoard, depth+1, 1-color)
+      max = score if score > max
+    end
+
+    return max
+
+  end
+
   def evalMove
     allValidMoves = []
-    getPiecesForSide($sideOnMove).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y).flatten
+    getPiecesForSide(@board, $sideOnMove).each do |piece|
+      allValidMoves << moveList(piece.x, piece.y, @board).flatten
     end
 
     m = {}
     allValidMoves.flatten.each do |move|
       piece = @board[move.toSquare.y][move.toSquare.x]
+      # FIXME: make king worth more
       if piece.upcase == 'K'
-        self.move(move)
+        self.turnMove(move)
         return move
       end
       copyOfBoard = Marshal.load( Marshal.dump(@board) )
-      score = scoreGen(move, copyOfBoard)
+      score = scoreGen(copyOfBoard)
       m[move] = score
     end
 
@@ -93,19 +153,19 @@ class State
       bestMove = m.min_by { |move,val| val }.first
      end
 
-     move(bestMove)
+     turnMove(bestMove)
+     puts "Eval Move chose #{bestMove}"
      self.nextTurn
      return bestMove.to_s
   end
 
-  def scoreGen(move, copyOfBoard)
+  def scoreGen(copyOfBoard)
     score = 0
-    updateBoard(move, copyOfBoard)
-    getPiecesForSide('W').each do |piece|
+    getPiecesForSide(copyOfBoard, 'W').each do |piece|
       piece = copyOfBoard[piece.y][piece.x]
       score += getPieceValue(piece)
     end
-    getPiecesForSide('B').each do |piece|
+    getPiecesForSide(copyOfBoard, 'B').each do |piece|
       piece = copyOfBoard[piece.y][piece.x]
       score += getPieceValue(piece)
     end
@@ -115,7 +175,7 @@ class State
   # Not part of homework just strategy for comparision
   def chooseBestKill
     allValidMoves = []
-    getPiecesForSide($sideOnMove).each do |piece|
+    getPiecesForSide(@board, $sideOnMove).each do |piece|
       allValidMoves << moveList(piece.x, piece.y).flatten
     end
 
@@ -123,14 +183,14 @@ class State
     allValidMoves.flatten.each do |move|
       piece = @board[move.toSquare.y][move.toSquare.x]
       if piece.upcase == 'K'
-        self.move(move)
+        self.move(move, @board)
         return move
       end
       m[move] = getPieceValue(piece.upcase)
     end
 
      bestMove = m.max_by { |move,val| val }.first
-     move(bestMove)
+     move(bestMove, @board)
      self.nextTurn
      return bestMove
   end
@@ -152,12 +212,12 @@ class State
     return p.upcase == p ? score : - score
   end
 
-  def getPiecesForSide(color)
+  def getPiecesForSide(board, color)
     pieces = []
     for y in 0..5 do
       for x in 0..4 do
         piece = Square.new(x,y)
-        if isPiece?(piece) and color == getColor(x,y)
+        if isPiece?(board, piece) and color == getColor(board, x, y)
            pieces << piece
         end
       end
@@ -168,11 +228,11 @@ class State
   def humanTurn
     puts "Enter Move:"
     input = gets.chomp
-    begin
+    #begin
       humanMove(input)
-    rescue
-      humanTurn
-    end
+    #rescue
+    #  humanTurn
+    #end
   end
 
   def humanMove(hmove)
@@ -182,12 +242,12 @@ class State
     hmove = Move.new(fs, ts)
 
     moves = []
-    moveList(fs.x, fs.y).flatten.each do |m|
+    moveList(fs.x, fs.y, @board).flatten.each do |m|
       moves << m.to_s
     end
 
     if moves.include?(hmove.to_s)
-      move(hmove)
+      turnMove(hmove)
     else
       puts "Invalid chess move #{hmove.to_s} please try again"
       throw "Invalid Human move"
@@ -195,22 +255,26 @@ class State
     self.nextTurn
   end
 
-  def move(m)
-    if isPiece?(m.fromSquare) and (getColor(m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
+  def turnMove(move)
+      move(move, @board) 
+      $moveCounter += 1
+  end
+
+  def move(m, board)
+    if isPiece?(board, m.fromSquare) and (getColor(board, m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
 
 
       moves = []
-      moveList(m.fromSquare.x, m.fromSquare.y).flatten.each do |m| 
+      moveList(m.fromSquare.x, m.fromSquare.y, board).flatten.each do |m| 
         moves << m.to_s 
       end
 
       if not moves.include?(m.to_s)
         throw "Error: Not a valid move x, y is fromSquare: #{m.fromSquare.x} #{m.fromSquare.y}, toSquare is #{m.toSquare.x} #{m.toSquare.y}"
       else
-        updateBoard(m, @board)
+        updateBoard(m, board)
       end
 
-      $moveCounter += 1
     else
       throw "move error"
     end
@@ -224,20 +288,20 @@ class State
 
     # if piece is pawn and reaches the end of the board, then its becomes a queen
     if board[m.toSquare.y][m.toSquare.x].upcase == 'P'
-      if m.toSquare.y == 5 and getColor(m.toSquare.x, m.toSquare.y) == 'B'
+      if m.toSquare.y == 5 and getColor(board, m.toSquare.x, m.toSquare.y) == 'B'
         board[m.toSquare.y][m.toSquare.x] = 'q'
       end
-      if m.toSquare.y == 0 and getColor(m.toSquare.x, m.toSquare.y) == 'W'
+      if m.toSquare.y == 0 and getColor(board, m.toSquare.x, m.toSquare.y) == 'W'
         board[m.toSquare.y][m.toSquare.x] = 'Q'
       end
     end
 
   end
 
-  def moveScan(x0, y0, dx, dy, capture, stop_short)
+  def moveScan(x0, y0, dx, dy, capture, stop_short, board)
     x = x0
     y = y0
-    c = getColor(x0,y0)
+    c = getColor(board, x0,y0)
     moves = []
 
     loop do
@@ -245,8 +309,8 @@ class State
       y += dy
       break if not inBounds?(x,y)
 
-      if isOccupied?(@board[y][x])
-        break if getColor(x,y) == c
+      if isOccupied?(board[y][x])
+        break if getColor(board, x,y) == c
         break if not capture
         stop_short = true
       end
@@ -259,23 +323,23 @@ class State
     return moves
   end
 
-  def getColor(x, y)
-    if @board[y][x].to_s.upcase == @board[y][x]
+  def getColor(board, x, y)
+    if board[y][x].to_s.upcase == board[y][x]
       return "W"
     else
       return "B"
     end
   end
 
-  def isPiece?(square)
-    return ['Q','K','R','N','B','P'].include?(@board[square.y][square.x].upcase)
+  def isPiece?(board, square)
+    return ['Q','K','R','N','B','P'].include?(board[square.y][square.x].upcase)
   end
 
-  def isCapture?(fs, ts)
-    if @board[ts.y][ts.x] == '.'
+  def isCapture?(fs, ts, board)
+    if board[ts.y][ts.x] == '.'
       return false
     else
-      return @board[fs.y][fs.x].to_s != @board[ts.y][ts.x].to_s
+      return board[fs.y][fs.x].to_s != board[ts.y][ts.x].to_s
     end
   end
 
@@ -287,10 +351,10 @@ class State
     return (x < 5 and x > -1 and y < 6 and y > -1)
   end
 
-  def moveList(x,y)
+  def moveList(x,y, board)
 
     # To list the moves of a piece at x, y: 
-    p = @board[y][x]
+    p = board[y][x]
     moves = []
 
     case p
@@ -301,7 +365,7 @@ class State
                 next
             end
             stop_short = (p == 'K' or p == 'k')
-            moves << moveScan(x, y, dx, dy, capture=true, stop_short)
+            moves << moveScan(x, y, dx, dy, capture=true, stop_short, board)
           end
         end
         return moves
@@ -311,7 +375,7 @@ class State
         stop_short = false
         capture = true
         for i in 1..4
-          moves << moveScan(x, y, dx, dy, capture, stop_short)
+          moves << moveScan(x, y, dx, dy, capture, stop_short, board)
           dx,dy = -dy,dx
         end
         return moves
@@ -321,7 +385,7 @@ class State
         stop_short = true
         capture = false
         for i in 1..4
-          moves << moveScan(x, y, dx, dy, capture, stop_short)
+          moves << moveScan(x, y, dx, dy, capture, stop_short, board)
           dx,dy = -dy,dx
         end
         dx = 1
@@ -329,7 +393,7 @@ class State
         stop_short = false
         capture = true
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, capture, stop_short)
+            moves << moveScan(x, y, dx, dy, capture, stop_short, board)
             dx,dy = -dy,dx
         end
         return moves
@@ -339,36 +403,36 @@ class State
         stop_short = true
         capture = true
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, capture, stop_short)
+            moves << moveScan(x, y, dx, dy, capture, stop_short, board)
             dx,dy = -dy,dx
         end
         dx = -1
         dy = 2
         for i in 1..4
-            moves << moveScan(x, y, dx, dy, capture, stop_short)
+            moves << moveScan(x, y, dx, dy, capture, stop_short, board)
             dx,dy = -dy,dx
         end
         return moves
       when 'P', 'p'
 
         # inverse the direction of black pawns
-        dir = (getColor(x,y) == 'B') ? 1 : -1
+        dir = (getColor(board, x,y) == 'B') ? 1 : -1
 
         stop_short = true
 
         # West
-        m = moveScan(x, y, -1, dir, true, stop_short)
+        m = moveScan(x, y, -1, dir, true, stop_short, board)
         # check if I can capture diag (NW or SW)
-        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare)
+        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare, board)
             moves << m
         end
         # East
-        m = moveScan(x, y, 1, dir, true, stop_short)
+        m = moveScan(x, y, 1, dir, true, stop_short, board)
         # check if I can capture diag ( NE or SE)
-        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare)
+        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare, board)
             moves << m
         end
-        moves << moveScan(x, y, 0, dir, false, stop_short)
+        moves << moveScan(x, y, 0, dir, false, stop_short, board)
         return moves
 
       else
@@ -378,10 +442,10 @@ class State
 
   def getChessSquare(square)
     row = ['a','b','c','d','e']
-    x = row.index(square[0])
-    y = [6, 5, 4, 3, 2, 1, 0][square[1].to_i]
+    x = row.index(square[0].chr)
+    y = [6, 5, 4, 3, 2, 1, 0][square[1].chr.to_i]
     if x.nil? or y.nil?
-      throw "Invalid chess square"
+      throw "Invalid chess square #{square.to_s}"
     end
     return Square.new(x,y)
   end

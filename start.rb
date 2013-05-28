@@ -1,6 +1,7 @@
-#/usr/bin/env ruby
+#!/usr/bin/ruby1.9.3
+
 require './state'
-require 'debugger'
+#require 'debugger'
 
 class Game
 
@@ -12,11 +13,9 @@ class Game
 
   while not game.gameOver? do
     game.humanTurn
-    game.nextTurn
     game.printBoard
     break if game.gameOver?
-    game.evalMove
-    game.nextTurn
+    game.negamaxMove
     game.printBoard
   end
 
