@@ -14,14 +14,6 @@ class State
     @board = []
   end
 
-  def nextTurn
-    if $sideOnMove == 'W'
-        $sideOnMove = 'B'
-    elsif $sideOnMove == 'B'
-        $sideOnMove = 'W'
-    end
-  end
-
   def printBoard
     puts "#{$moveCounter} #{$sideOnMove}"
     @board.each do |x|
@@ -57,17 +49,10 @@ class State
   end
 
   def randomMove
-    color = $sideOnMove
     # ask each piece for valid moves
-    allValidMoves = []
-    getPiecesForSide(board, color).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y, @board)
-    end
-    allValidMoves.flatten!
-    random = rand(allValidMoves.size)
-    randomMove = allValidMoves[random]
-    move(randomMove, @board)
-    self.nextTurn
+    moves = getLegalMoves(@board, $sideOnMove)
+    randomMove = moves[rand(moves.size)]
+    turnMove(randomMove)
     return randomMove
   end
 
@@ -91,7 +76,6 @@ class State
      turnMove(bestMove)
      puts "Negamax Move is #{bestMove}"
      puts "Total number of nodes: #{@nodes}"
-     self.nextTurn
      return bestMove.to_s
 
   end
@@ -106,18 +90,10 @@ class State
 
     color == 1 ? colorSide = 'W' : colorSide = 'B'
 
-    # Encapsulate this into a method
-    # Fix method to accept a board
-    allValidMoves = []
-    getPiecesForSide(board, colorSide).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y, board).flatten
-    end
-
-    allValidMoves.flatten.each do | move |
+    getLegalMoves(board, colorSide).each do |move|
       # FIXME make copy of board
       copyOfBoard = Marshal.load( Marshal.dump(board) )
       # make move on copyOfBoard
-      #puts "Move is #{move}"
       updateBoard(move, copyOfBoard)
       # traverse down the tree
       score = -negamax(copyOfBoard, depth+1, 1-color)
@@ -155,7 +131,6 @@ class State
 
      turnMove(bestMove)
      puts "Eval Move chose #{bestMove}"
-     self.nextTurn
      return bestMove.to_s
   end
 
@@ -190,8 +165,7 @@ class State
     end
 
      bestMove = m.max_by { |move,val| val }.first
-     move(bestMove, @board)
-     self.nextTurn
+     turnMove(bestMove)
      return bestMove
   end
 
@@ -240,7 +214,6 @@ class State
     fs = getChessSquare(m.first)
     ts = getChessSquare(m.last)
     hmove = Move.new(fs, ts)
-
     moves = []
     moveList(fs.x, fs.y, @board).flatten.each do |m|
       moves << m.to_s
@@ -252,12 +225,12 @@ class State
       puts "Invalid chess move #{hmove.to_s} please try again"
       throw "Invalid Human move"
     end
-    self.nextTurn
   end
 
   def turnMove(move)
-      move(move, @board) 
+      move(move, @board)
       $moveCounter += 1
+      $sideOnMove == 'W' ? $sideOnMove = 'B' : $sideOnMove = 'W'
   end
 
   def move(m, board)
@@ -321,6 +294,14 @@ class State
     end
 
     return moves
+  end
+
+  def getLegalMoves(board, color)
+    moves = []
+    getPiecesForSide(board, color).each do |piece|
+      moves << moveList(piece.x, piece.y, board).flatten
+    end
+    return moves.flatten
   end
 
   def getColor(board, x, y)
