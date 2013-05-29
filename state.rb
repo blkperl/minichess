@@ -1,5 +1,6 @@
 require './move.rb'
 require './square.rb'
+require './exceptions.rb'
 
 class State
 
@@ -202,28 +203,25 @@ class State
   def humanTurn
     puts "Enter Move:"
     input = gets.chomp
-    #begin
+    begin
       humanMove(input)
-    #rescue
-    #  humanTurn
-    #end
+    rescue InvalidHumanMove
+      puts "Invalid move #{input}, Please try again"
+      humanTurn
+    end
   end
 
   def humanMove(hmove)
-    m = hmove.split("-")
-    fs = getChessSquare(m.first)
-    ts = getChessSquare(m.last)
-    hmove = Move.new(fs, ts)
-    moves = []
-    moveList(fs.x, fs.y, @board).flatten.each do |m|
-      moves << m.to_s
-    end
-
-    if moves.include?(hmove.to_s)
+    begin
+      m = hmove.split("-")
+      fs = getChessSquare(m.first)
+      ts = getChessSquare(m.last)
+      hmove = Move.new(fs, ts)
       turnMove(hmove)
-    else
-      puts "Invalid chess move #{hmove.to_s} please try again"
-      throw "Invalid Human move"
+    rescue InvalidMove
+      raise InvalidHumanMove, hmove.to_s
+    rescue InvalidSquare
+      raise InvalidHumanMove, hmove.to_s
     end
   end
 
@@ -234,22 +232,22 @@ class State
   end
 
   def move(m, board)
-    if isPiece?(board, m.fromSquare) and (getColor(board, m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
+    begin
+      if isPiece?(board, m.fromSquare) and (getColor(board, m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
 
+        moves = []
+        moveList(m.fromSquare.x, m.fromSquare.y, board).flatten.each do |m| 
+          moves << m.to_s 
+        end
 
-      moves = []
-      moveList(m.fromSquare.x, m.fromSquare.y, board).flatten.each do |m| 
-        moves << m.to_s 
+        if not moves.include?(m.to_s)
+          raise InvalidMove, "Error: Not a valid move x, y is fromSquare: #{m.fromSquare.x} #{m.fromSquare.y}, toSquare is #{m.toSquare.x} #{m.toSquare.y}"
+        else
+          updateBoard(m, board)
+        end
       end
-
-      if not moves.include?(m.to_s)
-        throw "Error: Not a valid move x, y is fromSquare: #{m.fromSquare.x} #{m.fromSquare.y}, toSquare is #{m.toSquare.x} #{m.toSquare.y}"
-      else
-        updateBoard(m, board)
-      end
-
-    else
-      throw "move error"
+    rescue InvalidPiece => e
+        raise InvalidMove, e.message
     end
   end
 
@@ -417,7 +415,7 @@ class State
         return moves
 
       else
-        throw "Error: moveList called on invalid piece '#{p}' with coordinates x: #{x} y: #{y}"
+        raise InvalidPiece, "Error: moveList called on invalid piece '#{p}' with coordinates x: #{x} y: #{y}"
       end
     end
 
@@ -425,9 +423,6 @@ class State
     row = ['a','b','c','d','e']
     x = row.index(square[0].chr)
     y = [6, 5, 4, 3, 2, 1, 0][square[1].chr.to_i]
-    if x.nil? or y.nil?
-      throw "Invalid chess square #{square.to_s}"
-    end
     return Square.new(x,y)
   end
 end
