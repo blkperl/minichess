@@ -9,16 +9,16 @@ class State
 
   MAXTURNS = 80
   MAXDEPTH = 3
-  $sideOnMove = 'W'
   $mzero = 'UNSET'
 
   def initialize
     @board = []
     @moveCounter = 1
+    @sideOnMove = 'W'
   end
 
   def printBoard
-    puts "#{@moveCounter} #{$sideOnMove}"
+    puts "#{@moveCounter} #{@sideOnMove}"
     @board.each do |x|
       puts x.join("")
     end
@@ -53,7 +53,7 @@ class State
 
 def negamaxMove
     @nodes = 0
-    score = -negamax2(@board, MAXDEPTH, $sideOnMove, true)
+    score = -negamax2(@board, MAXDEPTH, @sideOnMove, true)
     puts "Negamax score is #{score} move is #{$mzero}"
     puts "Total number of nodes: #{@nodes}"
     turnMove($mzero)
@@ -166,9 +166,9 @@ end
   end
 
   def turnMove(move)
-      move(move, @board, $sideOnMove)
+      move(move, @board, @sideOnMove)
       @moveCounter += 1
-      $sideOnMove == 'W' ? $sideOnMove = 'B' : $sideOnMove = 'W'
+      @sideOnMove == 'W' ? @sideOnMove = 'B' : @sideOnMove = 'W'
   end
 
   def move(m, board, sideOnMove)
