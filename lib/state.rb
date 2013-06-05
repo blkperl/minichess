@@ -62,7 +62,7 @@ end
 
   def negamax2(board, depth, sideOnMove, top)
     if gameOver?(board) or depth <= 0
-         return scoreGen(board)
+         return scoreGen(board, sideOnMove)
     end
 
     moves = []
@@ -74,6 +74,8 @@ end
     move = moves.pop
     copyOfBoard = Marshal.load( Marshal.dump(board) )
     move(move, copyOfBoard, sideOnMove)
+    # update side
+    sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
     vprime = -(negamax2(copyOfBoard, depth - 1,sideOnMove, false))
     if top
         $mzero = move
@@ -81,6 +83,7 @@ end
     moves.each do |move|
       copyOfBoard = Marshal.load( Marshal.dump(board) )
       move(move, copyOfBoard, sideOnMove)
+      sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
       v = -(negamax2(copyOfBoard, depth - 1, sideOnMove, false))
       if v > vprime
         #puts " ----- #{v} > #{vprime}----------"
@@ -95,17 +98,19 @@ end
     return vprime
   end
 
-  def scoreGen(copyOfBoard)
-    score = 0
+  def scoreGen(copyOfBoard, sideOnMove)
+    whiteScore = 0
+    blackScore = 0
     getPiecesForSide(copyOfBoard, 'W').each do |piece|
       piece = copyOfBoard[piece.y][piece.x]
-      score += getPieceValue(piece)
+      whiteScore += getPieceValue(piece)
     end
     getPiecesForSide(copyOfBoard, 'B').each do |piece|
       piece = copyOfBoard[piece.y][piece.x]
-      score += getPieceValue(piece)
+      blackScore += getPieceValue(piece)
     end
-    return score.abs
+    score = sideOnMove == 'W' ? whiteScore - blackScore : blackScore - whiteScore
+    return score
   end
 
   def getPieceValue(p)
