@@ -1,7 +1,7 @@
 require File.expand_path('../../lib/square.rb', __FILE__)
 
 
-describe Square, "it has x and y" do
+describe Square, "(1,1)" do
 
   square = Square.new(1,1)
 
