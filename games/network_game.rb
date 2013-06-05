@@ -1,6 +1,6 @@
 #/usr/bin/env ruby
-require './state'
-require './client'
+require File.expand_path('../../lib/state.rb', __FILE__)
+require File.expand_path('../../lib/client.rb', __FILE__)
 require 'debugger'
 
 class Game
@@ -16,14 +16,14 @@ class Game
   # make first move if true
   if nc.acceptGame(gameId)
     puts "First Move is mine"
-    nc.move(game.evalMove)
+    nc.move(game.negamaxMove)
   end
 
   while not game.gameOver? do
     nc.waitForMove
     game.humanMove(nc.getOpponentMove)
     break if game.gameOver?
-    nc.move(game.evalMove)
+    nc.move(game.negamaxMove)
   end
 
   nc.exit
