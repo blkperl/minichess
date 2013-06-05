@@ -56,3 +56,23 @@ describe State, "#gameOver?" do
   end
 
 end
+
+
+describe State, "#scoreGen" do
+
+  state = State.new
+
+  missingPawns = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['R','N','B','Q','K'],
+    ]
+
+  it "the game should calculate the correct score" do
+    state.scoreGen(missingPawns).should == 500
+  end
+
+end

@@ -83,7 +83,7 @@ end
       move(move, copyOfBoard, sideOnMove)
       v = -(negamax2(copyOfBoard, depth - 1, sideOnMove, false))
       if v > vprime
-        puts " ----- #{v} > #{vprime}----------"
+        #puts " ----- #{v} > #{vprime}----------"
         vprime = v
         if top
           $mzero = move
@@ -91,7 +91,7 @@ end
       end
     end
     @nodes += 1
-    puts "->-"  * depth +" #{move}" + " #{vprime}"
+    #puts "->-"  * depth +" #{move}" + " #{vprime}"
     return vprime
   end
 
@@ -105,7 +105,7 @@ end
       piece = copyOfBoard[piece.y][piece.x]
       score += getPieceValue(piece)
     end
-    return score
+    return score.abs
   end
 
   def getPieceValue(p)
@@ -142,7 +142,7 @@ end
 
   def humanTurn
     puts "Enter Move:"
-    input = gets.chomp
+    input = gets.strip
     begin
       humanMove(input)
     rescue InvalidHumanMove
