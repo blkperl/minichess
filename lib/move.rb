@@ -1,4 +1,4 @@
-require './square.rb'
+require File.expand_path('../square.rb', __FILE__)
 
 class Move
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require './state'
+require File.expand_path('../../lib/state.rb', __FILE__)
 require 'debugger'
 
 class Game

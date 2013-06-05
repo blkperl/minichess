@@ -1,6 +1,7 @@
-require './move.rb'
-require './square.rb'
-require './exceptions.rb'
+
+require File.expand_path('../square.rb', __FILE__)
+require File.expand_path('../move.rb', __FILE__)
+require File.expand_path('../exceptions.rb', __FILE__)
 
 class State
 
