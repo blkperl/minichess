@@ -5,20 +5,20 @@ require File.expand_path('../exceptions.rb', __FILE__)
 
 class State
 
-  attr_accessor :board
+  attr_accessor :board, :moveCounter
 
   MAXTURNS = 80
   MAXDEPTH = 3
-  $moveCounter = 1
   $sideOnMove = 'W'
   $mzero = 'UNSET'
 
-  def initializer()
+  def initialize
     @board = []
+    @moveCounter = 1
   end
 
   def printBoard
-    puts "#{$moveCounter} #{$sideOnMove}"
+    puts "#{@moveCounter} #{$sideOnMove}"
     @board.each do |x|
       puts x.join("")
     end
@@ -44,14 +44,14 @@ class State
    # ]
   end
 
-  def gameOver?(board=@board)
+  def gameOver?(board=@board, moveCounter=@moveCounter)
     if not board.flatten.include?('k')
       puts "white wins"
       return true
     elsif not board.flatten.include?('K')
       puts "black wins"
       return true
-    elsif @movesCounter == MAXTURNS
+    elsif moveCounter > MAXTURNS
       puts "draw"
       return true
     else
@@ -175,7 +175,7 @@ end
 
   def turnMove(move)
       move(move, @board, $sideOnMove)
-      $moveCounter += 1
+      @moveCounter += 1
       $sideOnMove == 'W' ? $sideOnMove = 'B' : $sideOnMove = 'W'
   end
 

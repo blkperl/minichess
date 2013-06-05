@@ -22,6 +22,14 @@ describe State, "#gameOver?" do
       ['P','P','P','P','P'],
       ['R','N','B','Q','.'],
     ]
+   draw = [
+      ['k','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','K'],
+    ]
 
   it "the game should end if the white king is gone" do
     state.gameOver?(whitewins).should == true
@@ -29,6 +37,10 @@ describe State, "#gameOver?" do
 
   it "the game should end if the black king is gone" do
     state.gameOver?(blackwins).should == true
+  end
+
+  it "the game should end there has been MAXTURNS" do
+    state.gameOver?(draw, 81).should == true
   end
 
 end
