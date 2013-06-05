@@ -51,6 +51,35 @@ class State
     end
   end
 
+def alphaBeta
+
+    negamax(s, d, a, b) = do
+      if game_over(s) or d = 0 return value(s)
+      v = -1.0
+      a0 = a
+      for m in moves(s) do
+        v = max(v, -negamax(move(s, m), d - 1, -b, -a0))
+        a0 = max(a0, v)
+        if v ≥ b return v
+      return v
+
+    best_move(s1) = do
+      d0 = 1
+      m0 = resign
+      while time remains
+        v = -1.0
+        a0 = -1.0
+        for m in moves(s1) do
+          v0 = max(v, -negamax(move(s1, m), d0, -1.0, -a0))
+          a0 = max(a0, v0)
+          if v0 > v then m0 = m
+          v = max(v, v0)
+        d0 = d0 + 1
+      return m0
+
+
+end
+
 def negamaxMove
     @nodes = 0
     score = -negamax2(@board, MAXDEPTH, @sideOnMove, true)
