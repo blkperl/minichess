@@ -1,14 +1,14 @@
 require 'net/telnet.rb'
+require 'debugger'
 
 class Client
 
-  $move = nil
-
   def initialize
+    @move = 'UNSET'
     @server = Net::Telnet::new(
       "Host" => "imcs.svcs.cs.pdx.edu",
       "Port" => "3589",
-      "Timeout" => 60,
+      "Timeout" => 12000,
       "Prompt" => //)
   end
 
@@ -49,7 +49,7 @@ class Client
       return true
     elsif color == 'B'
       move = match(/.*/)
-      $move = move.match(/[a-f]\d-[a-f]/)
+      @move = move.match(/[a-f]\d-[a-f]/)
       return false
     else
       throw "Error: First move cannot be decided, color is #{color}"
@@ -58,19 +58,19 @@ class Client
 
   def waitForMove()
     move = match(/.*[a-f]\d-[a-f]\d.*/)
-    $move = move.match(/[a-f]\d-[a-f]\d/).to_s
+    @move = move.match(/[a-f]\d-[a-f]\d/).to_s
   end
 
   def move(movestring)
     if not movestring.nil?
-      $move = write(movestring)
+      @move = write(movestring.to_s)
     else
       throw "Error: nil movestring"
     end
   end
 
   def getOpponentMove
-    return $move
+    return @move
   end
 
   def write(command)
