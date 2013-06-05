@@ -7,9 +7,10 @@ class State
   attr_accessor :board
 
   MAXTURNS = 80
-  MAXDEPTH = 2
+  MAXDEPTH = 3
   $moveCounter = 1
   $sideOnMove = 'W'
+  $mzero = 'UNSET'
 
   def initializer()
     @board = []
@@ -32,9 +33,17 @@ class State
       ['P','P','P','P','P'],
       ['R','N','B','Q','K'],
     ]
+   # @board = [
+   #   ['k','.','R','.','.'],
+   #   ['.','.','.','.','.'],
+   #   ['.','.','.','.','.'],
+   #   ['.','.','.','.','.'],
+   #   ['.','.','.','.','.'],
+   #   ['K','.','.','.','.'],
+   # ]
   end
 
-  def gameOver?
+  def gameOver?(board=@board)
     if not @board.flatten.include?('k')
       puts "white wins"
       return true
@@ -49,90 +58,48 @@ class State
     end
   end
 
-  def randomMove
-    # ask each piece for valid moves
-    moves = getLegalMoves(@board, $sideOnMove)
-    randomMove = moves[rand(moves.size)]
-    turnMove(randomMove)
-    return randomMove
-  end
-
-  def negamaxMove()
-
+def negamaxMove
     @nodes = 0
-    allValidMoves = []
-    getPiecesForSide(board, $sideOnMove).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y, @board).flatten
+    score = -negamax2(@board, MAXDEPTH, $sideOnMove, true)
+    puts "Negamax score is #{score} move is #{$mzero}"
+    puts "Total number of nodes: #{@nodes}"
+    turnMove($mzero)
+    return $mzero
+end
+
+  def negamax2(board, depth, sideOnMove, top)
+    if gameOver?(board) or depth <= 0
+         return scoreGen(board)
     end
 
-    m = {}
-    allValidMoves.flatten.each do |move|
-      $sideOnMove == 'W' ? color = 1 : color = -1
-      # FIXME might need to negative
-      m[move] = negamax(@board, 0, color)
+    moves = []
+    getPiecesForSide(board, sideOnMove).each do |piece|
+      moves << moveList(piece.x, piece.y, board).flatten
     end
-
-     bestMove = m.max_by { |move,val| val }.first
-
-     turnMove(bestMove)
-     puts "Negamax Move is #{bestMove}"
-     puts "Total number of nodes: #{@nodes}"
-     return bestMove.to_s
-
-  end
-
-  def negamax(board, depth, color)
-    if gameOver? or depth > MAXDEPTH
-      @nodes = @nodes + 1
-      return  color * scoreGen(board)
+    # extract some move m from moves
+    moves.flatten!
+    move = moves.pop
+    copyOfBoard = Marshal.load( Marshal.dump(board) )
+    move(move, copyOfBoard, sideOnMove)
+    vprime = -(negamax2(copyOfBoard, depth - 1,sideOnMove, false))
+    if top
+        $mzero = move
     end
-
-    max = -20000
-
-    color == 1 ? colorSide = 'W' : colorSide = 'B'
-
-    getLegalMoves(board, colorSide).each do |move|
-      # FIXME make copy of board
+    moves.each do |move|
       copyOfBoard = Marshal.load( Marshal.dump(board) )
-      # make move on copyOfBoard
-      updateBoard(move, copyOfBoard)
-      # traverse down the tree
-      score = -negamax(copyOfBoard, depth+1, 1-color)
-      max = score if score > max
-    end
-
-    return max
-
-  end
-
-  def evalMove
-    allValidMoves = []
-    getPiecesForSide(@board, $sideOnMove).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y, @board).flatten
-    end
-
-    m = {}
-    allValidMoves.flatten.each do |move|
-      piece = @board[move.toSquare.y][move.toSquare.x]
-      # FIXME: make king worth more
-      if piece.upcase == 'K'
-        self.turnMove(move)
-        return move
+      move(move, copyOfBoard, sideOnMove)
+      v = -(negamax2(copyOfBoard, depth - 1, sideOnMove, false))
+      if v > vprime
+        puts " ----- #{v} > #{vprime}----------"
+        vprime = v
+        if top
+          $mzero = move
+        end
       end
-      copyOfBoard = Marshal.load( Marshal.dump(@board) )
-      score = scoreGen(copyOfBoard)
-      m[move] = score
     end
-
-     if $sideOMove == 'W'
-      bestMove = m.max_by { |move,val| val }.first
-     else
-      bestMove = m.min_by { |move,val| val }.first
-     end
-
-     turnMove(bestMove)
-     puts "Eval Move chose #{bestMove}"
-     return bestMove.to_s
+    @nodes += 1
+    puts "->-"  * depth +" #{move}" + " #{vprime}"
+    return vprime
   end
 
   def scoreGen(copyOfBoard)
@@ -148,28 +115,6 @@ class State
     return score
   end
 
-  # Not part of homework just strategy for comparision
-  def chooseBestKill
-    allValidMoves = []
-    getPiecesForSide(@board, $sideOnMove).each do |piece|
-      allValidMoves << moveList(piece.x, piece.y).flatten
-    end
-
-    m = {}
-    allValidMoves.flatten.each do |move|
-      piece = @board[move.toSquare.y][move.toSquare.x]
-      if piece.upcase == 'K'
-        self.move(move, @board)
-        return move
-      end
-      m[move] = getPieceValue(piece.upcase)
-    end
-
-     bestMove = m.max_by { |move,val| val }.first
-     turnMove(bestMove)
-     return bestMove
-  end
-
   def getPieceValue(p)
     case p.upcase
       when 'P'
@@ -180,7 +125,9 @@ class State
         score = 500
       when 'Q'
         score = 900
-      when 'K', '.'
+      when 'K'
+        score = 10000
+      when  '.'
         score = 0
     end
 
@@ -226,14 +173,14 @@ class State
   end
 
   def turnMove(move)
-      move(move, @board)
+      move(move, @board, $sideOnMove)
       $moveCounter += 1
       $sideOnMove == 'W' ? $sideOnMove = 'B' : $sideOnMove = 'W'
   end
 
-  def move(m, board)
+  def move(m, board, sideOnMove)
     begin
-      if isPiece?(board, m.fromSquare) and (getColor(board, m.fromSquare.x, m.fromSquare.y) == $sideOnMove)
+      if isPiece?(board, m.fromSquare) and (getColor(board, m.fromSquare.x, m.fromSquare.y) == sideOnMove)
 
         moves = []
         moveList(m.fromSquare.x, m.fromSquare.y, board).flatten.each do |m| 
