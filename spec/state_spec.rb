@@ -6,6 +6,14 @@ describe State, "#gameOver?" do
 
   state = State.new
 
+  normal = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['P','P','P','P','P'],
+      ['R','N','B','Q','K'],
+    ]
   whitewins = [
       ['.','q','b','n','r'],
       ['p','p','p','p','p'],
@@ -30,6 +38,10 @@ describe State, "#gameOver?" do
       ['.','.','.','.','.'],
       ['.','.','.','.','K'],
     ]
+
+  it "should return false if under maxturns and kings are alive" do
+    state.gameOver?(normal).should == false
+  end
 
   it "the game should end if the white king is gone" do
     state.gameOver?(whitewins).should == true
