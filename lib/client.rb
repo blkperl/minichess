@@ -18,7 +18,7 @@ class Client
 
   def login
     write("me cheshire wonderland")
-    match(/201 hello chesire\n/)
+    match(/201 hello cheshire\n/)
   end
 
   def listGames
