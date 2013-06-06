@@ -33,7 +33,8 @@ class Client
 
   def offerGame(color="W", time='5:00', op_time='5:00')
     write("offer #{color} #{time} #{op_time}")
-    match(/103 \d+ game waiting for offer acceptance\n/)
+    id = match(/103 \d+ game waiting for offer acceptance\n/)
+    puts id
     output = match(/10\d (W|B) \d+:\d+ \d+:\d+ game starts\n/)
     return firstMove?(output.match(/W|B/).to_s)
   end
