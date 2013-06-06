@@ -38,10 +38,10 @@ class State
 
   def gameOver?(board=@board, moveCounter=@moveCounter)
     if not board.flatten.include?('k')
-      puts "white wins"
+      #puts "white wins"
       return true
     elsif not board.flatten.include?('K')
-      puts "black wins"
+      #puts "black wins"
       return true
     elsif moveCounter > MAXTURNS
       puts "draw"
@@ -123,8 +123,9 @@ class State
       piece = copyOfBoard[piece.y][piece.x]
       blackScore += getPieceValue(piece)
     end
-    score = sideOnMove == 'W' ? whiteScore - blackScore : blackScore - whiteScore
-    return score
+    #score = sideOnMove == 'W' ? whiteScore +  : blackScore - whiteScore
+    score = whiteScore + blackScore
+    return sideOnMove == 'W' ?  score : -score
   end
 
   def getPieceValue(p)
@@ -143,8 +144,8 @@ class State
         score = 0
     end
 
-    #return p.upcase == p ? score : - score
-    return score
+    return p.upcase == p ? score : - score
+    #return score
   end
 
   def getPiecesForSide(board, color)
