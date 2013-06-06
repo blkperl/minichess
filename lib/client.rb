@@ -17,7 +17,7 @@ class Client
   end
 
   def login
-    write("me chesire wonderland")
+    write("me cheshire wonderland")
     match(/201 hello chesire\n/)
   end
 
