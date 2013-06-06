@@ -51,80 +51,65 @@ class State
     end
   end
 
-def alphaBeta
+  def timeRemains?
+    if Time.now - @turnTimer > 1
+      return false
+    else
+      return true
+    end
+  end
 
-    negamax(s, d, a, b) = do
-      if game_over(s) or d = 0 return value(s)
+  def negamaxMove
+      @nodes = 1
+      score = -negamax2(@board, MAXDEPTH, @sideOnMove, true)
+      puts "Negamax score is #{score} move is #{$mzero}"
+      puts "Total number of nodes: #{@nodes}"
+      turnMove($mzero)
+      return $mzero
+  end
+
+  def bestMove(board=@board)
+    @turnTimer = Time.now
+    d0 = 1
+    m0 = 'UNSET'
+    while timeRemains?
       v = -1.0
-      a0 = a
-      for m in moves(s) do
-        v = max(v, -negamax(move(s, m), d - 1, -b, -a0))
-        a0 = max(a0, v)
-        if v ≥ b return v
-      return v
-
-    best_move(s1) = do
-      d0 = 1
-      m0 = resign
-      while time remains
-        v = -1.0
-        a0 = -1.0
-        for m in moves(s1) do
-          v0 = max(v, -negamax(move(s1, m), d0, -1.0, -a0))
-          a0 = max(a0, v0)
-          if v0 > v then m0 = m
-          v = max(v, v0)
-        d0 = d0 + 1
+      a0 = -1.0 
+      getLegalMoves(board, @sideOnMove).each do |move|
+        copyOfBoard = Marshal.load( Marshal.dump(board) )
+        #move(move, copyOfBoard, @sideOnMove)
+        #@sideOnMove == 'W' ? @sideOnMove = 'B' : @sideOnMove = 'W'
+        v0 = [v, -negamax(copyOfBoard, d0, @sideOnMove, -1.0, -a0)].max
+        a0 = [a0, v0].max
+         if v0 > v 
+          m0 = move 
+         end
+          v = [v, v0].max 
+      end
+        d0 = d0 + 1 
+    end
+      puts "Negamax move is #{m0} time is #{Time.now - @turnTimer}"
+      turnMove(m0)
       return m0
+  end
 
-
-end
-
-def negamaxMove
-    @nodes = 0
-    score = -negamax2(@board, MAXDEPTH, @sideOnMove, true)
-    puts "Negamax score is #{score} move is #{$mzero}"
-    puts "Total number of nodes: #{@nodes}"
-    turnMove($mzero)
-    return $mzero
-end
-
-  def negamax2(board, depth, sideOnMove, top)
-    if gameOver?(board) or depth <= 0
-         return scoreGen(board, sideOnMove)
-    end
-
-    moves = []
-    getPiecesForSide(board, sideOnMove).each do |piece|
-      moves << moveList(piece.x, piece.y, board).flatten
-    end
-    # extract some move m from moves
-    moves.flatten!
-    move = moves.pop
-    copyOfBoard = Marshal.load( Marshal.dump(board) )
-    move(move, copyOfBoard, sideOnMove)
-    # update side
-    sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
-    vprime = -(negamax2(copyOfBoard, depth - 1,sideOnMove, false))
-    if top
-        $mzero = move
-    end
-    moves.each do |move|
-      copyOfBoard = Marshal.load( Marshal.dump(board) )
-      move(move, copyOfBoard, sideOnMove)
-      sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
-      v = -(negamax2(copyOfBoard, depth - 1, sideOnMove, false))
-      if v > vprime
-        #puts " ----- #{v} > #{vprime}----------"
-        vprime = v
-        if top
-          $mzero = move
+  def negamax(board, depth, sideOnMove, alpha, beta)
+      if gameOver?(board) or depth == 0
+        return scoreGen(board, sideOnMove)
+      end
+      v = -1.0
+      alpha0 = alpha
+      getLegalMoves(board, sideOnMove).each do |move|
+        copyOfBoard = Marshal.load( Marshal.dump(board) )
+        move(move, copyOfBoard, sideOnMove)
+        sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
+        v = [v, -negamax(copyOfBoard, depth - 1, sideOnMove, -beta, -alpha0)].max
+        alpha0 = [alpha0, v].max
+        if v >= beta 
+          return v
         end
       end
-    end
-    @nodes += 1
-    #puts "->-"  * depth +" #{move}" + " #{vprime}"
-    return vprime
+    return v
   end
 
   def scoreGen(copyOfBoard, sideOnMove)
@@ -158,7 +143,8 @@ end
         score = 0
     end
 
-    return p.upcase == p ? score : - score
+    #return p.upcase == p ? score : - score
+    return score
   end
 
   def getPiecesForSide(board, color)

@@ -16,7 +16,7 @@ class Game
   # make first move if true
   if nc.acceptGame(gameId)
     puts "First Move is mine"
-    nc.move(game.negamaxMove)
+    nc.move(game.bestMove)
     game.printBoard
   end
 
@@ -25,7 +25,7 @@ class Game
     game.humanMove(nc.getOpponentMove)
     game.printBoard
     break if game.gameOver?
-    nc.move(game.negamaxMove)
+    nc.move(game.bestMove)
     game.printBoard
   end
 

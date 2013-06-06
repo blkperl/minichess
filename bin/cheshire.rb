@@ -12,7 +12,7 @@ class Game
   game.printBoard
 
   while not game.gameOver? do
-    game.negamaxMove
+    game.bestMove
     game.printBoard
     break if game.gameOver?
     game.humanTurn
