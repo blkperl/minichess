@@ -31,7 +31,7 @@ class Client
     match(/210 .*/)
   end
 
-  def offerGame(color="W", time=600, op_time=600)
+  def offerGame(color="W", time='5:00', op_time='5:00')
     write("offer #{color} #{time} #{op_time}")
     match(/103 \d+ game waiting for offer acceptance\n/)
     output = match(/10\d (W|B) \d+:\d+ \d+:\d+ game starts\n/)
