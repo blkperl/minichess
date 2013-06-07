@@ -71,8 +71,12 @@ describe State, "#scoreGen" do
       ['R','N','B','Q','K'],
     ]
 
-  it "the game should calculate the correct score" do
-    state.scoreGen(missingPawns).should == 500
+  it "scoreGen should calculate the correct score for black" do
+    state.scoreGen(missingPawns, 'B').should == 500
+  end
+
+  it "scoreGen should calculate the correct score for white" do
+    state.scoreGen(missingPawns, 'W').should == -500
   end
 
 end
