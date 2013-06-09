@@ -52,63 +52,87 @@ class State
   end
 
   def timeRemains?
-    if Time.now - @turnTimer > 1
+    if Time.now - @turnTimer > 2
       return false
     else
       return true
     end
   end
 
-  def negamaxMove
-      @nodes = 1
-      score = -negamax2(@board, MAXDEPTH, @sideOnMove, true)
-      puts "Negamax score is #{score} move is #{$mzero}"
-      puts "Total number of nodes: #{@nodes}"
-      turnMove($mzero)
-      return $mzero
-  end
-
   def bestMove(board=@board)
     @turnTimer = Time.now
     d0 = 1
     m0 = 'UNSET'
+    values = {}
+
+    getLegalMoves(board, @sideOnMove).each do |move|
+      copyOfBoard = Marshal.load( Marshal.dump(board) )
+      move(move, copyOfBoard, @sideOnMove)
+      values[move] = scoreGen(copyOfBoard, @sideOnMove)
+    end
+
     while timeRemains?
-      v = -1.0
-      a0 = -1.0 
-      getLegalMoves(board, @sideOnMove).each do |move|
+      v = -10000000
+      a0 = -1.0
+
+      # sort from greatest to least
+      sortedValues = values.sort_by { |move, value | value}.reverse
+      # run negamax from greatest to least
+      sortedValues.each { |tuple|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
-        #move(move, copyOfBoard, @sideOnMove)
-        #@sideOnMove == 'W' ? @sideOnMove = 'B' : @sideOnMove = 'W'
+        move(tuple.first, copyOfBoard, @sideOnMove)
         v0 = [v, -negamax(copyOfBoard, d0, @sideOnMove, -1.0, -a0)].max
         a0 = [a0, v0].max
-         if v0 > v 
-          m0 = move 
-         end
-          v = [v, v0].max 
-      end
-        d0 = d0 + 1 
+        if v0 > v
+         m0 = tuple.first
+        end
+        if m0 == 'UNSET'
+          debugger
+        end
+
+        v = [v, v0].max
+      }
+
+      d0 = d0 + 1
+      puts "depth is #{d0}"
     end
-      puts "Negamax move is #{m0} time is #{Time.now - @turnTimer}"
-      turnMove(m0)
-      return m0
+
+    puts "Negamax move is #{m0} time is #{Time.now - @turnTimer}"
+    turnMove(m0)
+    return m0
   end
 
   def negamax(board, depth, sideOnMove, alpha, beta)
       if gameOver?(board) or depth == 0
         return scoreGen(board, sideOnMove)
       end
-      v = -1.0
-      alpha0 = alpha
+
+      # gather all the moves
+      values = {}
+
       getLegalMoves(board, sideOnMove).each do |move|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
         move(move, copyOfBoard, sideOnMove)
-        sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
+        values[move] = scoreGen(copyOfBoard, sideOnMove)
+      end
+
+      v = -1.0
+      alpha0 = alpha
+
+      # switch sides
+      sideOnMove == 'W' ? sideOnMove = 'B' : sideOnMove = 'W'
+      # sort from greatest to least
+      sortedValues = values.sort_by { |move, value| value}.reverse
+      # run negamax from greatest to least
+      sortedValues.each { |tuple|
+        copyOfBoard = Marshal.load( Marshal.dump(board) )
+        move(tuple.first, copyOfBoard, @sideOnMove)
         v = [v, -negamax(copyOfBoard, depth - 1, sideOnMove, -beta, -alpha0)].max
         alpha0 = [alpha0, v].max
-        if v >= beta 
+        if v >= beta
           return v
         end
-      end
+      }
     return v
   end
 
