@@ -84,7 +84,7 @@ class State
         return move
       end
       move(move, copyOfBoard, sideOnMove)
-      values[move] = improvedScoreGen(copyOfBoard, sideOnMove)
+      values[move] = scoreGen(copyOfBoard, sideOnMove)
     end
 
     while timeRemains?
@@ -121,7 +121,7 @@ class State
 
   def negamax(board, depth, sideOnMove, alpha, beta)
       if gameOver?(board) or depth == 0
-        return improvedScoreGen(board, sideOnMove)
+        return scoreGen(board, sideOnMove)
       end
 
       @nodes += 1
@@ -131,7 +131,7 @@ class State
       getLegalMoves(board, sideOnMove).each do |move|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
         move(move, copyOfBoard, sideOnMove)
-        values[move] = improvedScoreGen(copyOfBoard, sideOnMove)
+        values[move] = scoreGen(copyOfBoard, sideOnMove)
       end
 
       v = -1.0
@@ -154,23 +154,7 @@ class State
     return v
   end
 
-  def scoreGen(copyOfBoard, sideOnMove)
-    whiteScore = 0
-    blackScore = 0
-    getPiecesForSide(copyOfBoard, 'W').each do |piece|
-      piece = copyOfBoard[piece.y][piece.x]
-      whiteScore += getPieceValue(piece)
-    end
-    getPiecesForSide(copyOfBoard, 'B').each do |piece|
-      piece = copyOfBoard[piece.y][piece.x]
-      blackScore += getPieceValue(piece)
-    end
-
-    score = whiteScore + blackScore
-    return sideOnMove == 'W' ?  score : -score
-  end
-
-  def improvedScoreGen(copyOfBoard, sideOnMove)
+  def scoreGen(board, sideOnMove)
     whiteScore = 0
     blackScore = 0
     for y in 0..5 do
@@ -179,13 +163,13 @@ class State
         if isPiece?(board, piece)
           pieceColor = getColor(board, x, y)
           if pieceColor == 'W'
-            piece = copyOfBoard[piece.y][piece.x]
+            piece = board[piece.y][piece.x]
             if piece == 'P'
               whiteScore += checkPawns(board, sideOnMove, x, y)
             end
             whiteScore += getPieceValue(piece)
           else
-            piece = copyOfBoard[piece.y][piece.x]
+            piece = board[piece.y][piece.x]
             if piece == 'p'
               blackScore += checkPawns(board, sideOnMove, x, y)
             end
