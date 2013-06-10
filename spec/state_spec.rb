@@ -159,3 +159,49 @@ describe State, "#updateBoard" do
   end
 
 end
+
+describe State, "#getColor" do
+
+  state = State.new
+
+  board = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['P','P','P','P','P'],
+      ['R','N','B','Q','K'],
+    ]
+
+  it "should return black for black pieces" do
+    state.getColor(board, 0, 0).should == 'B'
+  end
+
+  it "should return white for white pieces" do
+    state.getColor(board, 4, 4).should == 'W'
+  end
+
+end
+
+describe State, "#isPiece?" do
+
+  state = State.new
+
+  board = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['P','P','P','P','P'],
+      ['R','N','B','Q','K'],
+    ]
+
+  it "should return true for valid pieces" do
+    state.isPiece?(board, Square.new(0,0)).should == true
+  end
+
+  it "should return false for empty squares" do
+    state.isPiece?(board, Square.new(0,2)).should == false
+  end
+
+end
