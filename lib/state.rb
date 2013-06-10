@@ -14,6 +14,7 @@ class State
     @board = []
     @moveCounter = 1
     @sideOnMove = 'W'
+    @nodes = 0
   end
 
   def printBoard
@@ -71,6 +72,7 @@ class State
 
   def bestMove(board=@board, sideOnMove=@sideOnMove)
     @turnTimer = Time.now
+    @nodes = 0
     d0 = 1
     m0 = 'UNSET'
     negaScore = 0
@@ -89,8 +91,11 @@ class State
       v = -10000000
       a0 = -1.0
 
+      # shuffle values
+      sortedValues = values.to_a
+      sortedValues.shuffle!
       # sort from greatest to least
-      sortedValues = values.sort_by { |move, value | value}.reverse
+      sortedValues = sortedValues.sort_by { | m, v | v }.reverse
       # run negamax from greatest to least
       sortedValues.each { |tuple|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
@@ -109,7 +114,7 @@ class State
       puts "depth is #{d0}"
     end
 
-    puts "Negamax move is #{m0}, score is #{negaScore}, time is #{Time.now - @turnTimer}"
+    puts "Negamax at (#{@nodes}), move is #{m0}, score is #{negaScore}, time is #{Time.now - @turnTimer}"
     turnMove(m0)
     return m0
   end
@@ -119,6 +124,7 @@ class State
         return improvedScoreGen(board, sideOnMove)
       end
 
+      @nodes += 1
       # gather all the moves
       values = {}
 
