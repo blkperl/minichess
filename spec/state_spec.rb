@@ -105,3 +105,57 @@ describe State, "#captureKing?" do
   end
 
 end
+
+describe State, "#getpiecesforside" do
+
+  state = State.new
+
+  board = [
+      ['k','.','.','.','.'],
+      ['.','p','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','P','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','R','.','K'],
+    ]
+
+  # fixme: add object comparision test
+  it "should return correct # of pieces for black" do
+    state.getPiecesForSide(board, 'B').size.should == 2
+  end
+
+  it "should return correct # of pieces for white" do
+    state.getPiecesForSide(board, 'W').size.should == 3
+  end
+
+end
+
+describe State, "#updateBoard" do
+
+  state = State.new
+
+  board = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['P','P','P','P','P'],
+      ['R','N','B','Q','K'],
+    ]
+  update_board = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','P'],
+      ['P','P','P','P','.'],
+      ['R','N','B','Q','K'],
+    ]
+
+  it "should update the board" do
+    state.board = board
+    move = Move.new(Square.new(4,4), Square.new(4,3))
+    state.updateBoard(move, board)
+    state.board.should == update_board
+  end
+
+end
