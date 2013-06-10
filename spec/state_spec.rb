@@ -80,3 +80,28 @@ describe State, "#scoreGen" do
   end
 
 end
+
+describe State, "#captureKing?" do
+
+  state = State.new
+
+  board = [
+      ['k','q','b','n','r'],
+      ['.','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['R','N','B','Q','K'],
+    ]
+
+  it "should return true for a king capture" do
+    move = Move.new(Square.new(0,5), Square.new(0,0))
+    state.captureKing?(move, board, 'W').should == true 
+  end
+
+  it "should return false for normal moves" do
+    move = Move.new(Square.new(5,5), Square.new(5,4))
+    state.captureKing?(move, board, 'W').should == false
+  end
+
+end
