@@ -58,17 +58,31 @@ class State
     end
   end
 
-  def bestMove(board=@board)
+  def captureKing?(move, board, sideOnMove)
+    piece = board[move.toSquare.y][move.toSquare.x]
+    if piece == 'k' and sideOnMove == 'W'
+      return true
+    elsif piece == 'K' and sideOnMove == 'B'
+      return true
+    else
+      return false
+    end
+  end
+
+  def bestMove(board=@board, sideOnMove=@sideOnMove)
     @turnTimer = Time.now
     d0 = 1
     m0 = 'UNSET'
     negaScore = 0
     values = {}
 
-    getLegalMoves(board, @sideOnMove).each do |move|
+    getLegalMoves(board, sideOnMove).each do |move|
       copyOfBoard = Marshal.load( Marshal.dump(board) )
-      move(move, copyOfBoard, @sideOnMove)
-      values[move] = improvedScoreGen(copyOfBoard, @sideOnMove)
+      if captureKing?(move, copyOfBoard, sideOnMove)
+        return move
+      end
+      move(move, copyOfBoard, sideOnMove)
+      values[move] = improvedScoreGen(copyOfBoard, sideOnMove)
     end
 
     while timeRemains?
@@ -80,8 +94,8 @@ class State
       # run negamax from greatest to least
       sortedValues.each { |tuple|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
-        move(tuple.first, copyOfBoard, @sideOnMove)
-        v0 = [v, -negamax(copyOfBoard, d0, @sideOnMove, -1.0, -a0)].max
+        move(tuple.first, copyOfBoard, sideOnMove)
+        v0 = [v, -negamax(copyOfBoard, d0, sideOnMove, -1.0, -a0)].max
         a0 = [a0, v0].max
         if v0 > v
          m0 = tuple.first
@@ -145,7 +159,6 @@ class State
       piece = copyOfBoard[piece.y][piece.x]
       blackScore += getPieceValue(piece)
     end
-    #score = sideOnMove == 'W' ? whiteScore +  : blackScore - whiteScore
 
     score = whiteScore + blackScore
     return sideOnMove == 'W' ?  score : -score
@@ -197,14 +210,15 @@ class State
   def checkPawnDiags(board, sideOnMove, x, y)
     score = 0
     sideOnMove == 'W' ? direction = 1 : direction = -1
+    sideOnMove == 'W' ? color = 'W' : color = 'B'
 
     west = board[y+direction][x+1]
     east = board[y+direction][x-1]
 
-    if not west.nil? and isOccupied?(west)
+    if not west.nil? and color == getColor(board, x, y) and  isOccupied?(west)
       score += 6
     end
-    if not east.nil? and isOccupied?(east)
+    if not east.nil? and color == getColor(board, x, y) and isOccupied?(east)
       score += 6
     end
 
