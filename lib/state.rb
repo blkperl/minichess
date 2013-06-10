@@ -8,7 +8,6 @@ class State
   attr_accessor :board, :moveCounter
 
   MAXTURNS = 80
-  MAXDEPTH = 3
   $mzero = 'UNSET'
 
   def initialize
@@ -52,7 +51,7 @@ class State
   end
 
   def timeRemains?
-    if Time.now - @turnTimer > 2
+    if Time.now - @turnTimer > 3
       return false
     else
       return true
@@ -68,7 +67,7 @@ class State
     getLegalMoves(board, @sideOnMove).each do |move|
       copyOfBoard = Marshal.load( Marshal.dump(board) )
       move(move, copyOfBoard, @sideOnMove)
-      values[move] = scoreGen(copyOfBoard, @sideOnMove)
+      values[move] = improvedScoreGen(copyOfBoard, @sideOnMove)
     end
 
     while timeRemains?
@@ -86,9 +85,6 @@ class State
         if v0 > v
          m0 = tuple.first
         end
-        if m0 == 'UNSET'
-          debugger
-        end
 
         v = [v, v0].max
       }
@@ -97,14 +93,14 @@ class State
       puts "depth is #{d0}"
     end
 
-    puts "Negamax move is #{m0} time is #{Time.now - @turnTimer}"
+    puts "Negamax move is #{m0}, score is #{v0}, time is #{Time.now - @turnTimer}"
     turnMove(m0)
     return m0
   end
 
   def negamax(board, depth, sideOnMove, alpha, beta)
       if gameOver?(board) or depth == 0
-        return scoreGen(board, sideOnMove)
+        return improvedScoreGen(board, sideOnMove)
       end
 
       # gather all the moves
@@ -113,7 +109,7 @@ class State
       getLegalMoves(board, sideOnMove).each do |move|
         copyOfBoard = Marshal.load( Marshal.dump(board) )
         move(move, copyOfBoard, sideOnMove)
-        values[move] = scoreGen(copyOfBoard, sideOnMove)
+        values[move] = improvedScoreGen(copyOfBoard, sideOnMove)
       end
 
       v = -1.0
@@ -148,9 +144,71 @@ class State
       blackScore += getPieceValue(piece)
     end
     #score = sideOnMove == 'W' ? whiteScore +  : blackScore - whiteScore
+
     score = whiteScore + blackScore
     return sideOnMove == 'W' ?  score : -score
   end
+
+  def improvedScoreGen(copyOfBoard, sideOnMove)
+    whiteScore = 0
+    blackScore = 0
+    for y in 0..5 do
+      for x in 0..4 do
+        piece = Square.new(x,y)
+        if isPiece?(board, piece)
+          pieceColor = getColor(board, x, y)
+          if pieceColor == 'W'
+            piece = copyOfBoard[piece.y][piece.x]
+            if piece == 'P'
+              whiteScore += checkPawns(board, sideOnMove, x, y)
+            end
+            whiteScore += getPieceValue(piece)
+          else
+            piece = copyOfBoard[piece.y][piece.x]
+            if piece == 'p'
+              blackScore += checkPawns(board, sideOnMove, x, y)
+            end
+            blackScore += getPieceValue(piece)
+          end
+        end
+      end
+    end
+    score = whiteScore + blackScore
+    return sideOnMove == 'W' ?  score : -score
+  end
+
+  def checkPawns(board, sideOnMove, x, y)
+    score = 0
+    sideOnMove == 'W' ? pos = [ 5, 4, 3, 2 ] : pos = [ 3, 2, 1, 0 ]
+
+    # additional points for moving pawns forward
+    if pos.include?(y)
+      score += 5
+    end
+
+    # check pawn diags
+    score += checkPawnDiags(board, sideOnMove, x, y)
+
+    return score
+  end
+
+  def checkPawnDiags(board, sideOnMove, x, y)
+    score = 0
+    sideOnMove == 'W' ? direction = 1 : direction = -1
+
+    west = board[y+direction][x+1]
+    east = board[y+direction][x-1]
+
+    if not west.nil? and isOccupied?(west)
+      score += 6
+    end
+    if not east.nil? and isOccupied?(east)
+      score += 6
+    end
+
+    return score
+  end
+
 
   def getPieceValue(p)
     case p.upcase
