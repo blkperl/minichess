@@ -205,3 +205,29 @@ describe State, "#isPiece?" do
   end
 
 end
+
+describe State, "#isCapture?" do
+
+  state = State.new
+
+  board = [
+      ['k','q','b','n','r'],
+      ['p','p','p','p','p'],
+      ['.','.','.','.','.'],
+      ['.','.','.','.','.'],
+      ['P','P','P','.','P'],
+      ['R','N','B','Q','K'],
+    ]
+
+
+  it "should return true for valid captures" do
+    move = Move.new(Square.new(3,5), Square.new(3,1))
+    state.isCapture?(move, board).should == true
+  end
+
+  it "should return false for non captures" do
+    move = Move.new(Square.new(0,4), Square.new(0,3))
+    state.isCapture?(move, board).should == false
+  end
+
+end

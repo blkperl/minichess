@@ -233,7 +233,6 @@ class State
     end
 
     return p.upcase == p ? score : - score
-    #return score
   end
 
   def getPiecesForSide(board, color)
@@ -363,11 +362,11 @@ class State
     return ['Q','K','R','N','B','P'].include?(board[square.y][square.x].upcase)
   end
 
-  def isCapture?(fs, ts, board)
-    if board[ts.y][ts.x] == '.'
+  def isCapture?(move, board)
+    if board[move.toSquare.y][move.toSquare.x] == '.'
       return false
     else
-      return board[fs.y][fs.x].to_s != board[ts.y][ts.x].to_s
+      return board[move.fromSquare.y][move.fromSquare.x].to_s != board[move.toSquare.y][move.toSquare.x].to_s
     end
   end
 
@@ -451,13 +450,13 @@ class State
         # West
         m = moveScan(x, y, -1, dir, true, stop_short, board)
         # check if I can capture diag (NW or SW)
-        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare, board)
+        if m.size == 1 and isCapture?(m[0], board)
             moves << m
         end
         # East
         m = moveScan(x, y, 1, dir, true, stop_short, board)
         # check if I can capture diag ( NE or SE)
-        if m.size == 1 and isCapture?(m[0].fromSquare, m[0].toSquare, board)
+        if m.size == 1 and isCapture?(m[0], board)
             moves << m
         end
         moves << moveScan(x, y, 0, dir, false, stop_short, board)
