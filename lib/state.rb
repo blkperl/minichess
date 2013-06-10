@@ -62,6 +62,7 @@ class State
     @turnTimer = Time.now
     d0 = 1
     m0 = 'UNSET'
+    negaScore = 0
     values = {}
 
     getLegalMoves(board, @sideOnMove).each do |move|
@@ -84,6 +85,7 @@ class State
         a0 = [a0, v0].max
         if v0 > v
          m0 = tuple.first
+         negaScore = v0
         end
 
         v = [v, v0].max
@@ -93,7 +95,7 @@ class State
       puts "depth is #{d0}"
     end
 
-    puts "Negamax move is #{m0}, score is #{v0}, time is #{Time.now - @turnTimer}"
+    puts "Negamax move is #{m0}, score is #{negaScore}, time is #{Time.now - @turnTimer}"
     turnMove(m0)
     return m0
   end
