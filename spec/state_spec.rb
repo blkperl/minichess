@@ -72,7 +72,7 @@ describe State, "#scoreGen" do
     ]
 
   it "scoreGen should calculate the correct score for black" do
-    state.scoreGen(missingPawns, 'B').should == 500
+    state.scoreGen(missingPawns, 'B').should == 421
   end
 
   it "scoreGen should calculate the correct score for white" do

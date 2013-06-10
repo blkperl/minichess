@@ -22,11 +22,11 @@ describe State, "capture king" do
   end
 
   it "scoreGen should calculate the correct score for white" do
-    state.scoreGen(whitewins, 'W').should == 700
+    state.scoreGen(whitewins, 'W').should == 716
   end
 
   it "scoreGen should calculate the correct score for black" do
-    state.scoreGen(whitewins, 'B').should == -700
+    state.scoreGen(whitewins, 'B').should == -710
   end
 
 end
